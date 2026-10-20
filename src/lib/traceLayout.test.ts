@@ -31,7 +31,7 @@ describe("single-stroke handwriting geometry", () => {
   it("repeats short words on each line and respects the trace toggle", () => {
     const worksheet = buildWorksheet(defaultWorksheetConfig);
     const layout = getWorksheetTraceLayout(worksheet);
-    expect(layout.rows).toHaveLength(7);
+    expect(layout.rows).toHaveLength(9);
     expect(layout.rows.every((row) => row.text === "Hello")).toBe(true);
     expect(layout.rows[0].placements.length).toBe(5);
     const blank = getWorksheetTraceLayout(buildWorksheet({
@@ -45,10 +45,12 @@ describe("single-stroke handwriting geometry", () => {
     const worksheet = buildWorksheet({
       ...defaultWorksheetConfig,
       practiceText: Array.from({ length: 120 }, () => "a").join(""),
+      writingHeight: 24,
+      rowHeight: 38,
     });
     const layout = getWorksheetTraceLayout(worksheet);
     expect(layout.overflow).toBe(true);
-    expect(layout.rows.length).toBe(7);
+    expect(layout.rows.length).toBe(6);
   });
 
   it("reports unsupported tracing characters instead of silently replacing them", () => {

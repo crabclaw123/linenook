@@ -1,52 +1,31 @@
-LineNook is a web application for generating customizable, printable handwriting worksheets for occupational therapists, teachers, and parents.
+# LineNook — Project Status
 
-Future plans include touchscreen handwriting activities.
+LineNook is a browser-based tool for making customizable, printable handwriting worksheets for occupational therapists, teachers, and families.
 
-## Tech Stack
-- React
-- TypeScript
-- Vite
-- Vitest
-- ESLint
-- Material UI (planned)
+## Stack
+React + TypeScript + Vite, Vitest, ESLint, SVG live preview. No backend for v1. Material UI and PDF export are potential later additions, not installed.
 
-## Current Development Phase
-Phase 1 — Worksheet Studio & Layout Engine
-
-## Current Git Branch
-feature/worksheet-studio
+## Branch
+`feature/worksheet-studio` (merge to `main` after QA).
 
 ## Completed
-- Initialized React + TypeScript + Vite
-- Configured ESLint
-- Installed Vitest
-- Created initial React components
-- Implemented calculateRows()
-- Created and passed calculateRows unit tests
+- Page dimensions and usable-page-area calculations in millimeters.
+- Row counting, row positions, top/middle/baseline guideline geometry.
+- Input validation and unit/integration tests for the worksheet engine.
+- `WorksheetConfig`, default settings, and `buildWorksheet()` orchestration.
+- Step 20: Responsive worksheet studio UI with live US Letter SVG preview, editable worksheet title and practice phrase, controls for writing height, row height, margins, baseline highlighting, and reset.
 
-## In Progress
-- calculateRowPositions() implementation
-- Row positioning unit tests
+## Current behavior and limitations
+- SVG uses engine-calculated millimeter coordinates and visually scales to the screen.
+- Practice phrase is drawn in light gray as a **sample**, not a tracing/dotted handwriting font. Multiple lines of input are flattened to one sample phrase.
+- Worksheet is a live on-screen preview only; no printable PDF generation or save/load yet.
+- Only US Letter paper is supported, and title-height reservation is fixed at 20 mm.
 
-## Next Steps
-1. Complete calculateRowPositions() tests
-2. Implement handwriting guideline positioning
-3. Connect worksheet engine to SVG rendering
-4. Develop live worksheet preview
-5. Implement PDF export
+## Next
+1. QA the preview on desktop and mobile; verify row count and controls react as expected.
+2. Design correct handwriting/tracing lettering and its placement.
+3. Add print/PDF output with accurate paper dimensions.
+4. Add presets for common handwriting interventions and optional expanded paper sizes.
 
-## Architecture Decisions
-- Separate worksheet calculations from React components
-- Keep the worksheet engine independent of the UI
-- Use unit tests for core calculations
-- Use SVG for worksheet rendering
-- No traditional backend required for Version 1
-
-## Known Issues
-- calculateRows() needs validation for invalid inputs
-- PDF generation has not been implemented
-
-## Development Workflow
-- Develop features on separate Git branches
-- Run tests before merging
-- QA completed features before merging into main
+## Workflow
+Keep geometry pure and UI independent; work on a feature branch, run `npm run test:run`, `npm run lint`, and `npm run build` locally before merging.

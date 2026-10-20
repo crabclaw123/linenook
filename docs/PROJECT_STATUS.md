@@ -3,37 +3,47 @@
 LineNook makes customizable, printable handwriting worksheets for OTs, teachers, and families.
 
 ## Stack
-React, TypeScript, Vite, Vitest, ESLint, SVG. No backend; the single-page vector PDF export has **no added dependencies**.
+React, TypeScript, Vite, Vitest, ESLint, SVG. No backend and no new PDF dependencies.
 
-## Branch
-`feature/worksheet-studio` — leave `main` unchanged pending testing and review.
+## Branch strategy
+- `main`: merged Phase 1 baseline; leave unchanged until review and pull request.
+- `feature/phase-2-worksheet-enhancements`: Phase 2 implementation and hands-on QA.
 
-## Phase 1 — Feature implementation complete, pending QA
-- Reusable millimeter-based worksheet layout and input validation.
-- US Letter SVG preview, title and editable phrase.
-- Integrated writing-line size and row-gap controls, with automatic row-height calculations and descender clearance.
-- Compact / Everyday / Extra room sizing presets (not standardized curriculum dimensions).
-- Optional even page-fill that uses extra inter-row space without stretching writing height; enlarged preview and collapsible settings.
-- Original vector single-stroke dotted alphabet for uppercase/lowercase A–Z, digits, and common punctuation; clips at page margins.
-- Short phrases repeat on each line; long phrases wrap and report overflow.
-- Optional blank guidelines, optional highlighted baseline.
-- Ready-made name, letter, number, sentence, and greeting presets.
-- PDF download exports vector guidelines and tracing on a 612 × 792 pt Letter page.
-- Dedicated print stylesheet prints the worksheet without the web UI.
-- Unit tests cover geometry, wrapping, common glyphs, sizing/gap safety, even page-fill, and PDF format/content.
-- New roadmap is in [ROADMAP.md](ROADMAP.md).
+## Phase 2 — Feature implementation, pending physical and clinical QA
+- Four guideline styles: classic top/dashed mid/baseline, color-cued three lines, double line and baseline only.
+- Options for trace, solid exemplar followed by copying lines, fading trace, and blank guidelines.
+- One letter per row for targeted practice, and uppercase/lowercase conversion.
+- Simple and rounded prototype manuscript alternatives for a, g, t and I; cleaned up common baseline curves.
+- Left-handed Copy reference placed on the right-hand side of the paper.
+- Optional Name/Date blanks positioned below worksheet title; 13 mm reserved header space so no writing-row overlap.
+- Both US Letter and A4 pages; SVG and PDF use shared physical millimeter measurements.
+- Browser-local current-setting restoration and up to 20 reusable named presets.
+- Refined stroke thickness/dot spacing in both printable PDF and live SVG preview.
 
-## Release checks
-Run `npm run test:run`, `npm run lint`, and `npm run build`.
-Then visually compare downloaded PDF with the preview and print one page **at 100% / Actual size** with browser headers/footers disabled. Inspect baseline, dashed middle, tracing letter visibility, margins, descenders, size presets, and line counts, with and without distributed row spacing. Do not merge to main until QA passes.
+## Testing
+CI should run:
+```bash
+npm run test:run
+npm run lint
+npm run build
+```
 
-## MVP limitations
-- One letter-size page per worksheet; no automatic multipage export.
-- Tracing glyphs are an original prototype, not a clinically standardized school handwriting font.
-- Some symbols/diacritics not supported (shown as question marks in the trace, with a warning).
-- PDF title uses built-in Helvetica and transliterates unsupported Unicode.
-- Full-page text beyond available rows triggers an overflow warning; shorten input or reduce row height.
-- No save/load or account backend (planned later).
+## Hands-on QA before marking Phase 2 production ready
+1. Open presets and try Trace, Copy, Fade, and Blank for “Hello” and “happy puppy.”
+2. Toggle **One letter per row**, switch uppercase/lowercase, and compare simple/rounded alternatives including **a g t I**.
+3. In Copy mode compare left-handed vs standard. Verify the right-side model remains visible and leaves writing space.
+4. Enable Name and Date together and individually; ensure title, header fields, and first writing row never overlap.
+5. Test every guideline style and baseline color, sizes, and page-space distribution.
+6. Download US Letter and A4 PDFs and compare their glyphs, lines, positions, headers, and colors to the browser preview.
+7. Print both formats at **100% / Actual size**, disable headers and footers, select the corresponding physical paper size, inspect descenders **g j p q y**, check line gaps.
+8. Test named preset save, load, overwrite, deletion, and reload, including in a browser where storage is disabled.
+9. Clinically inspect stroke directions, manuscript conventions, alternative shapes, and any handwriting prompts. No clinician review has yet been recorded.
 
-## Workflow
-Pure geometry and shared SVG/PDF trace layout. Keep QA on the feature branch; update this file at significant milestones.
+## Known limitations
+- One page per worksheet; no automatic multipage export.
+- Original prototype glyphs; **not clinically validated** or standardized handwriting-curriculum letterforms.
+- Some symbols and diacritics are replaced with '?' in tracing and flagged with a warning.
+- PDF title and Name/Date labels use PDF built-in Helvetica; titles transliterate unsupported Unicode.
+- Browser-only saved settings and presets; browser storage may be cleared, and there is no cloud syncing.
+- Letter-by-letter prompts take one row per character; excess characters trigger a warning.
+- Printing depends on browser/printer settings, including correct physical paper size and 100% scaling.

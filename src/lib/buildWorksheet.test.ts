@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { buildWorksheet } from "./buildWorksheet";
 import { defaultWorksheetConfig } from "./defaultWorksheetConfig";
-import { US_LETTER } from "./pageDimensions";
+import { US_LETTER, A4 } from "./pageDimensions";
 
 describe("buildWorksheet", () => {
   it("builds a worksheet from the default configuration", () => {
@@ -21,12 +21,31 @@ describe("buildWorksheet", () => {
     expect(worksheet.layout.rows.length).toBe(5);
   });
 
+  it("supports A4 without changing the physical writing line scale", () => {
+    const worksheet = buildWorksheet({ ...defaultWorksheetConfig, paperSize: "a4" });
+    expect(worksheet.pageWidth).toBe(A4.width);
+    expect(worksheet.pageHeight).toBe(A4.height);
+    expect(worksheet.layout.rows.length).toBe(10);
+    expect(worksheet.layout.rows[0].baseline - worksheet.layout.rows[0].top)
+      .toBeCloseTo(14);
+  });
+
+  it("reserves dedicated name/date header space rather than overlapping writing lines", () => {
+    const plain = buildWorksheet(defaultWorksheetConfig);
+    const labeled = buildWorksheet({
+      ...defaultWorksheetConfig, showName: true, showDate: true,
+    });
+    expect(labeled.area.startY).toBe(plain.area.startY + 13);
+    expect(labeled.area.height).toBe(plain.area.height - 13);
+    expect(labeled.layout.rows[0].top).toBe(labeled.area.startY);
+  });
+
   it("rejects invalid configurations", () => {
     expect(() => buildWorksheet({
       ...defaultWorksheetConfig, writingHeight: 50,
     })).toThrow();
     expect(() => buildWorksheet({
-      ...defaultWorksheetConfig, paperSize: "a4" as "letter",
-    })).toThrow("Only US Letter");
+      ...defaultWorksheetConfig, paperSize: "legal" as "letter",
+    })).toThrow("Unsupported paper size");
   });
 });

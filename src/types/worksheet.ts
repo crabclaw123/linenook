@@ -1,15 +1,31 @@
+export type PaperSize = "letter" | "a4";
+export type LineStyle = "classic" | "color-cues" | "double" | "baseline";
+export type LetterCase = "as-typed" | "uppercase" | "lowercase";
+export type LetterForm = "simple" | "rounded";
+export type PromptStyle = "whole" | "letter-by-letter";
+export type PracticeMode = "trace" | "copy" | "fade" | "blank";
+export type WritingHand = "right" | "left";
+
 export type WorksheetConfig = {
   title: string;
   practiceText: string;
-  paperSize: "letter";
+  paperSize: PaperSize;
   margin: number;
   titleHeight: number;
-  /** Total row pitch; in the studio this is writingHeight + reserved gap. */
+  /** Total row pitch: writing height plus space for descenders. */
   rowHeight: number;
-  /** Distance from top guideline to baseline. */
+  /** Distance from top guideline to baseline, in millimeters. */
   writingHeight: number;
-  /** Distribute the remaining page height into the spaces between rows. */
   fillPage: boolean;
   highlightBaseline: boolean;
+  /** Maintained for backward compatibility with Phase 1 configurations. */
   showTrace: boolean;
+  lineStyle: LineStyle;
+  letterCase: LetterCase;
+  letterForm: LetterForm;
+  promptStyle: PromptStyle;
+  practiceMode: PracticeMode;
+  writingHand: WritingHand;
+  showName: boolean;
+  showDate: boolean;
 };

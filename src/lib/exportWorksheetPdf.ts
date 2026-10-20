@@ -1,9 +1,11 @@
 import type { Worksheet } from "./buildWorksheet";
 import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "./traceLayout";
-import { TRACE_STYLE } from "./traceStyle";
+import { TRACE_STYLE, tracedColor } from "./traceStyle";
+import { getGuidelineStrokes } from "./guidelineStyle";
+import { getHeaderFields, getWorksheetTitleY } from "./headerFields";
 
 /**
- * Small dependency-free vector PDF writer for a single US Letter worksheet.
+ * Small dependency-free vector PDF writer for a single worksheet.
  * All measurements originate in the same millimeter worksheet layout used by SVG.
  * Text titles use PDF's built-in Helvetica (basic Latin subset); practice letters
  * are our own dotted vector handwriting paths, not raster images.
@@ -120,13 +122,14 @@ function contentStream(worksheet: Worksheet): string {
   const x2 = x1 + worksheet.area.width;
 
   for (const row of worksheet.layout.rows) {
-    commands.push(...strokeLine(worksheet, x1, row.top, x2, row.top, "#7998a0", 0.32));
-    commands.push(...strokeLine(worksheet, x1, row.middle, x2, row.middle, "#94aab1", 0.27, [1.8, 1.5]));
-    commands.push(...strokeLine(
-      worksheet, x1, row.baseline, x2, row.baseline,
-      worksheet.highlightBaseline ? "#df9869" : "#65858c",
-      worksheet.highlightBaseline ? 0.65 : 0.4
-    ));
+    for (const line of getGuidelineStrokes(
+      row, worksheet.lineStyle, worksheet.highlightBaseline
+    )) {
+      commands.push(...strokeLine(
+        worksheet, x1, line.y, x2, line.y, line.color,
+        line.widthMm, line.dashMm
+      ));
+    }
   }
 
   // Clip titles and trace letters to the horizontal writable area.
@@ -139,32 +142,45 @@ function contentStream(worksheet: Worksheet): string {
       "BT",
       "/F2 " + num(sizePt) + " Tf",
       rgb("#263d3b") + " rg",
-      coord(worksheet, x1, worksheet.area.startY - 7) + " Td",
+      coord(worksheet, x1, getWorksheetTitleY(worksheet)) + " Td",
       "(" + pdfLiteral(worksheet.title) + ") Tj",
       "ET"
     );
   }
 
-  const tracing = getWorksheetTraceLayout(worksheet);
-  if (worksheet.showTrace) {
+  for (const field of getHeaderFields(worksheet)) {
     commands.push(
-      "q",
-      "1 J",
-      "1 j",
-      rgb(TRACE_STYLE.color) + " RG",
-      num(pt(TRACE_STYLE.strokeWidthMm)) + " w",
-      "[" + num(pt(TRACE_STYLE.dotLengthMm)) + " " + num(pt(TRACE_STYLE.dotGapMm)) + "] 0 d"
+      "BT", "/F2 " + num(pt(3.5)) + " Tf",
+      rgb("#536b64") + " rg",
+      coord(worksheet, field.labelX, field.textY) + " Td",
+      "(" + field.label + ") Tj", "ET"
     );
+    commands.push(...strokeLine(
+      worksheet, field.lineStart, field.textY + 0.4,
+      field.lineEnd, field.textY + 0.4, "#78918c", 0.3
+    ));
+  }
+
+  const tracing = getWorksheetTraceLayout(worksheet);
+  if (worksheet.showTrace && worksheet.practiceMode !== "blank") {
     for (const row of tracing.rows) {
       for (const placement of row.placements) {
+        commands.push(
+          "q", "1 J", "1 j",
+          rgb(tracedColor(placement.opacity)) + " RG",
+          num(pt(TRACE_STYLE.strokeWidthMm)) + " w",
+          placement.solid ? "[] 0 d" :
+          "[" + num(pt(TRACE_STYLE.dotLengthMm)) + " " +
+            num(pt(TRACE_STYLE.dotGapMm)) + "] 0 d"
+        );
         for (const stroke of placement.glyph.strokes) {
           commands.push(...tracePathToPdf(
             worksheet, stroke, placement.x, placement.y, placement.scale
           ));
         }
+        commands.push("Q");
       }
     }
-    commands.push("Q");
   }
   commands.push("Q");
   return commands.join("\n") + "\n";

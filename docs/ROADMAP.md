@@ -2,28 +2,34 @@
 
 This is a prioritized direction, **not a promise or release schedule**. Status details live in [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
-## Phase 1 — Printable worksheet studio ✅ Implemented (awaiting print QA)
+## Phase 1 — Printable worksheet studio ✅ Implemented (hands-on print QA ongoing)
 **Milestone:** A therapist, teacher, or parent can customize and print a usable handwriting practice page.
 
 - [x] Configurable letter-size worksheet geometry and validation
 - [x] Live SVG preview and editing controls
 - [x] Original single-stroke **dotted tracing alphabet** (A–Z, a–z, numbers, common punctuation)
 - [x] Trace/blank-line toggle and long-phrase line wrapping
-- [x] Download a **vector US Letter PDF** (exact 612 × 792 pt)
-- [x] Browser print stylesheet at 100% scale (no app UI)
-- [x] Basic presets: name, letters, numbers, sentence, greeting
-- [x] Warning for content exceeding page length or unsupported tracing glyphs
-- [ ] **Hands-on QA:** check the physical printed page and clinically review letter proportions and trace paths before declaring release-ready.
+- [x] Download a vector US Letter PDF (exact 612 × 792 pt)
+- [x] Browser print stylesheet and simple starting templates
+- [x] Warning for overflow or unsupported tracing glyphs
+- [ ] **Hands-on print QA:** check page at 100% / actual size using real printers.
 
-## Phase 2 — Clinical & educational customization
+## Phase 2 — Clinical & educational customization 🧪 Implemented, pending hands-on QA
 **Milestone:** Worksheet options for varied handwriting intervention needs.
 
-- [ ] Multiple handwriting line styles; stronger baseline / top-mid-bottom visual cues
-- [ ] Clinician-reviewed letter formations and alternative letter shapes
-- [ ] Letter-by-letter prompts and uppercase/lowercase choices
-- [ ] Copying, fading, and other graded support modes
-- [ ] Left-handed writing considerations
-- [ ] A4 support, saved settings/presets
+- [x] **Multiple handwriting line styles** (classic, colorful top/middle/baseline cues, double line, baseline only)
+- [x] **Stronger visual cues** and shared SVG/PDF guideline styles
+- [x] **Refined prototype letter formations**, with alternate rounded a, g, t, and unbarred I
+- [ ] **Clinician review and sign-off of ALL letterforms** — this requires real OT judgment and visual inspection; the shapes have not been validated or certified against a commercial curriculum.
+- [x] **Letter-by-letter prompts** and uppercase/lowercase conversion
+- [x] **Copying, fading, tracing, and blank-line** graded support modes
+- [x] **Left-handed consideration**: right-side reference placement in Copy mode
+- [x] **A4 support** in SVG, vector PDF, and browser print CSS
+- [x] **Saved settings and named presets**, stored only in this browser (no accounts)
+- [x] **Refined dotted tracing** with matched preview/PDF stroke measurements
+- [x] **Optional Name and Date fields**, with reserved header space to avoid overlapping writing rows
+- [x] New automated tests for modes, layouts, guide styles, storage, and PDF features
+- [ ] **Hands-on QA** of PDF, physical print, tracing readability, left-handed layouts, A4 paper selection and assistive labeling
 
 ## Phase 3 — Worksheet library
 **Milestone:** Create targeted worksheets in under a minute.
@@ -47,4 +53,4 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - Evidence-informed cueing for individual formation difficulties
 
 ## Scope guardrail
-Prioritize useful print output and clinically appropriate worksheet conventions before adding gamification, AI feedback, user accounts, or a backend. The custom tracing alphabet is a first-generation vector style and is **not** represented as a standardized handwriting curriculum.
+Prioritize useful print output and clinically appropriate worksheet conventions before adding gamification, AI feedback, user accounts, or a backend. LineNook's custom tracing alphabet is **not** represented as a standardized or clinically validated handwriting curriculum.

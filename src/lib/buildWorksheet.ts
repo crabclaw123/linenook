@@ -1,34 +1,32 @@
 import type { WorksheetConfig } from "../types/worksheet";
 import type { WorksheetLayout } from "./generateWorksheetLayout";
 import type { PageArea } from "./calculatePageArea";
-
-import { US_LETTER } from "./pageDimensions";
+import { PAGE_DIMENSIONS } from "./pageDimensions";
 import { calculatePageArea } from "./calculatePageArea";
 import { generateWorksheetLayout } from "./generateWorksheetLayout";
 import { distributeRowSpacing } from "./distributeRowSpacing";
+import { FIELD_HEADER_HEIGHT_MM } from "./headerFields";
 
-export type Worksheet = {
+export type Worksheet = Omit<WorksheetConfig, "paperSize" | "margin" | "rowHeight" | "writingHeight" | "fillPage" | "titleHeight"> & {
+  paperSize: WorksheetConfig["paperSize"];
   pageWidth: number;
   pageHeight: number;
+  pageLabel: string;
   area: PageArea;
   layout: WorksheetLayout;
-  title: string;
-  practiceText: string;
-  highlightBaseline: boolean;
-  showTrace: boolean;
 };
 
 export function buildWorksheet(config: WorksheetConfig): Worksheet {
-  if (config.paperSize !== "letter") {
-    throw new Error("Only US Letter paper is currently supported.");
+  const page = PAGE_DIMENSIONS[config.paperSize];
+  if (!page) {
+    throw new Error("Unsupported paper size.");
   }
-
-  const page = US_LETTER;
+  const hasFields = config.showName || config.showDate;
   const area = calculatePageArea(
     page.width,
     page.height,
     config.margin,
-    config.titleHeight
+    config.titleHeight + (hasFields ? FIELD_HEADER_HEIGHT_MM : 0)
   );
 
   const originalLayout = generateWorksheetLayout(
@@ -48,13 +46,23 @@ export function buildWorksheet(config: WorksheetConfig): Worksheet {
     : originalLayout;
 
   return {
-    pageWidth: page.width,
-    pageHeight: page.height,
-    area,
-    layout,
     title: config.title,
     practiceText: config.practiceText,
     highlightBaseline: config.highlightBaseline,
     showTrace: config.showTrace,
+    paperSize: config.paperSize,
+    lineStyle: config.lineStyle,
+    letterCase: config.letterCase,
+    letterForm: config.letterForm,
+    promptStyle: config.promptStyle,
+    practiceMode: config.practiceMode,
+    writingHand: config.writingHand,
+    showName: config.showName,
+    showDate: config.showDate,
+    pageWidth: page.width,
+    pageHeight: page.height,
+    pageLabel: page.label,
+    area,
+    layout,
   };
 }

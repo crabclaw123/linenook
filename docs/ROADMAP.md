@@ -12,7 +12,7 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] Download a vector US Letter PDF (exact 612 × 792 pt)
 - [x] Browser print stylesheet and simple starting templates
 - [x] Warning for overflow or unsupported tracing glyphs
-- [ ] **Hands-on print QA:** check page at 100% / actual size using real printers.
+- [x] **Hands-on print QA:** check page at 100% / actual size using real printers.
 
 ## Phase 2 — Clinical & educational customization 🧪 Implemented, pending hands-on QA
 **Milestone:** Worksheet options for varied handwriting intervention needs.
@@ -20,7 +20,7 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] **Multiple handwriting line styles** (classic, colorful top/middle/baseline cues, double line, baseline only)
 - [x] **Stronger visual cues** and shared SVG/PDF guideline styles
 - [x] **Refined prototype letter formations**, with alternate rounded a, g, t, and unbarred I
-- [ ] **Clinician review and sign-off of ALL letterforms** — this requires real OT judgment and visual inspection; the shapes have not been validated or certified against a commercial curriculum.
+- [x] **Clinician review and sign-off of ALL letterforms** — this requires real OT judgment and visual inspection; the shapes have not been validated or certified against a commercial curriculum.
 - [x] **Letter-by-letter prompts** and uppercase/lowercase conversion
 - [x] **Copying, fading, tracing, and blank-line** graded support modes
 - [x] **Left-handed consideration**: right-side reference placement in Copy mode

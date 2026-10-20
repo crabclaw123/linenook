@@ -1,75 +1,47 @@
-# React + TypeScript + Vite
+# LineNook
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**LineNook** is a browser-based handwriting worksheet studio for occupational therapists, teachers, and families. Customize US Letter writing paper and print tracing or blank-line practice sheets — without creating an account.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Open the local Vite URL displayed in your terminal.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Make a worksheet
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Choose a starter preset (name, letters, numbers, sentence, or greeting), or write your own title and practice phrase.
+2. Choose **Compact**, **Everyday**, or **Extra room** writing size. Fine-tune the top-to-baseline writing size and the gap **between** rows; LineNook calculates total row pitch and reserves clearance for descending letters automatically.
+3. Optionally choose **Spread rows down the page** to distribute leftover space between rows without stretching letters. Leave **Dotted tracing letters** on for traceable single-stroke letters, or turn it off for empty lines.
+4. Preview updates immediately. Short text repeats on each row; long sentences wrap down the page. If it exceeds the one-page space, a warning appears.
+5. Click **Download PDF** for a one-page, vector US Letter file, or **Print worksheet** for browser printing.
 
+For physical printing choose **US Letter**, **Actual size / 100%**, and turn off browser headers/footers. PDF dimensions are exactly **612 × 792 points (8.5 × 11 in)**. The printer itself may impose non-printable margins.
+
+## Technical design
+
+- React and SVG for the editor and responsive preview.
+- Pure TypeScript layout calculations use millimeters.
+- The same original vector monoline character paths and shared tracing-stroke styles power both SVG dotted tracing and PDF export. Dot size, spacing and contrast are tuned for more legible paper output.
+- Lightweight dependency-free PDF writer for a single page (no browser screenshot/rasterization).
+- Unit tests for layout, character support, wrapping, and PDF structure.
+
+## Known limitations
+
+- **Prototype handwriting style:** Letterforms are designed for tracing practice, not certified against any specific handwriting curriculum. Review them for your students before clinical/educational use.
+- Uppercase/lowercase English letters, digits, and common punctuation supported. Unsupported characters become `?` in tracing, with an on-screen warning. PDF titles transliterate to basic Latin where possible.
+- One page only; no automatic multipage support.
+- Save/load and more specialized clinical templates are planned later.
+
+## Development
+
+```bash
+npm run test:run
+npm run lint
+npm run build
 ```
+
+Project direction: [docs/ROADMAP.md](docs/ROADMAP.md). Current progress: [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md).

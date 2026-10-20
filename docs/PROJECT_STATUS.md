@@ -19,6 +19,7 @@ React, TypeScript, Vite, Vitest, ESLint, SVG. No backend and no new PDF dependen
 - Both US Letter and A4 pages; SVG and PDF use shared physical millimeter measurements.
 - Browser-local current-setting restoration and up to 20 reusable named presets.
 - Refined stroke thickness/dot spacing in both printable PDF and live SVG preview.
+- Phase 2 QA refinements: cleaner two-stroke lowercase **y** descender; a 0–8 mm **extra character spacing** slider affecting line wrapping and actual SVG/PDF glyph positions; increased Fade contrast when longer content only occupies a few rows.
 
 ## Testing
 CI should run:
@@ -29,11 +30,11 @@ npm run build
 ```
 
 ## Hands-on QA before marking Phase 2 production ready
-1. Open presets and try Trace, Copy, Fade, and Blank for “Hello” and “happy puppy.”
+1. Open presets and try Trace, Copy, Fade, and Blank for “Hello” and “happy puppy.” Also compare Fade vs Trace with the alphabet or content spread over 2–3 rows.
 2. Toggle **One letter per row**, switch uppercase/lowercase, and compare simple/rounded alternatives including **a g t I**.
 3. In Copy mode compare left-handed vs standard. Verify the right-side model remains visible and leaves writing space.
 4. Enable Name and Date together and individually; ensure title, header fields, and first writing row never overlap.
-5. Test every guideline style and baseline color, sizes, and page-space distribution.
+5. Test every guideline style and baseline color, sizes, page-space distribution, and extra character spacing (0, 4, 8 mm). Inspect that long text reflows rather than clipping.
 6. Download US Letter and A4 PDFs and compare their glyphs, lines, positions, headers, and colors to the browser preview.
 7. Print both formats at **100% / Actual size**, disable headers and footers, select the corresponding physical paper size, inspect descenders **g j p q y**, check line gaps.
 8. Test named preset save, load, overwrite, deletion, and reload, including in a browser where storage is disabled.

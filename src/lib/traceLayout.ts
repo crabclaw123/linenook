@@ -29,10 +29,14 @@ export function transformPracticeText(text: string, letterCase: Worksheet["lette
   return text;
 }
 
-export function measureTraceText(text: string, letterForm: LetterForm = "simple"): number {
+export function measureTraceText(
+  text: string,
+  letterForm: LetterForm = "simple",
+  spacingUnits = LETTER_SPACING
+): number {
   return Array.from(text).reduce(
     (total, character, index) => total +
-      getHandwritingGlyph(character, letterForm).width + (index ? LETTER_SPACING : 0),
+      getHandwritingGlyph(character, letterForm).width + (index ? spacingUnits : 0),
     0
   );
 }
@@ -41,7 +45,8 @@ export function measureTraceText(text: string, letterForm: LetterForm = "simple"
 export function wrapTraceText(
   text: string,
   maxUnits: number,
-  letterForm: LetterForm = "simple"
+  letterForm: LetterForm = "simple",
+  spacingUnits = LETTER_SPACING
 ): string[] {
   if (!Number.isFinite(maxUnits) || maxUnits <= 0) {
     throw new Error("Available tracing width must be positive and finite.");
@@ -51,7 +56,7 @@ export function wrapTraceText(
     let current = "";
     for (const word of paragraph.trim().split(/\s+/).filter(Boolean)) {
       const candidate = current ? current + " " + word : word;
-      if (measureTraceText(candidate, letterForm) <= maxUnits) {
+      if (measureTraceText(candidate, letterForm, spacingUnits) <= maxUnits) {
         current = candidate;
         continue;
       }
@@ -60,7 +65,7 @@ export function wrapTraceText(
         current = "";
       }
       for (const character of word) {
-        if (current && measureTraceText(current + character, letterForm) > maxUnits) {
+        if (current && measureTraceText(current + character, letterForm, spacingUnits) > maxUnits) {
           lines.push(current);
           current = "";
         }
@@ -92,16 +97,29 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
 
   const writingHeight = rows[0].baseline - rows[0].top;
   const scale = writingHeight / 10;
+  // Spacing is entered in millimeters, then converted into glyph units.
+  // Every SVG/PDF placement and line-wrap calculation uses this same value.
+  const spacingUnits = LETTER_SPACING + worksheet.characterSpacing / scale;
   const left = worksheet.area.startX + 2;
   const right = worksheet.area.startX + worksheet.area.width - 2;
   const maxUnits = (worksheet.area.width - 4) / scale;
   const letterByLetter = worksheet.promptStyle === "letter-by-letter";
   const items = letterByLetter
     ? Array.from(text).filter((character) => !/\s/.test(character))
-    : wrapTraceText(text, maxUnits, worksheet.letterForm);
+    : wrapTraceText(text, maxUnits, worksheet.letterForm, spacingUnits);
   const repeating = !letterByLetter && items.length === 1;
   const copy = worksheet.practiceMode === "copy";
   const fade = worksheet.practiceMode === "fade";
+  // A long phrase flows onto only a few rows: grade the cues across THOSE
+  // rows rather than the entire page, while keeping every word readable.
+  // Repeated short phrases still fade all the way to blank practice.
+  const filledRowCount = Math.min(items.length, rows.length);
+  function fadeOpacity(rowIndex: number): number {
+    if (repeating) return rowOpacity(rowIndex, rows.length);
+    return filledRowCount <= 1
+      ? 1
+      : 1 - 0.65 * rowIndex / (filledRowCount - 1);
+  }
 
   const traceRows = rows.map((row, rowIndex): TraceRow => {
     const rowText = letterByLetter
@@ -110,22 +128,25 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
     if (!rowText || (copy && !letterByLetter && repeating && rowIndex > 0)) {
       return { text: "", placements: [] };
     }
-    if (fade && !letterByLetter && rowOpacity(rowIndex, rows.length) <= 0) {
+    if (fade && !letterByLetter && fadeOpacity(rowIndex) <= 0) {
       return { text: "", placements: [] };
     }
 
-    const copies = letterByLetter && !copy
-      ? Math.min(5, Math.max(1, Math.floor(
-          (maxUnits + LETTER_SPACING) /
-          (getHandwritingGlyph(rowText, worksheet.letterForm).width + LETTER_SPACING)
-        )))
-      : 1;
-    const drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
-    const width = measureTraceText(drawn, worksheet.letterForm) * scale;
+    // Repeat individual letters only while the complete sequence fits.
+    // Account for the extra space characters between repeated letters as well
+    // as the user-selected character spacing, preventing right-edge clipping.
+    let copies = letterByLetter && !copy ? 5 : 1;
+    let drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
+    while (copies > 1 &&
+      measureTraceText(drawn, worksheet.letterForm, spacingUnits) > maxUnits) {
+      copies--;
+      drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
+    }
+    const width = measureTraceText(drawn, worksheet.letterForm, spacingUnits) * scale;
     const referenceRight = copy && worksheet.writingHand === "left";
     let x = referenceRight ? right - width : left;
     const opacity = fade && !letterByLetter
-      ? rowOpacity(rowIndex, rows.length)
+      ? fadeOpacity(rowIndex)
       : 1;
 
     const placements: TracePlacement[] = Array.from(drawn).map((character, index) => {
@@ -135,7 +156,7 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
         opacity: fade && letterByLetter ? rowOpacity(index, Array.from(drawn).length) : opacity,
         solid: copy,
       };
-      x += (glyph.width + LETTER_SPACING) * scale;
+      x += (glyph.width + spacingUnits) * scale;
       return placement;
     }).filter((p) => p.opacity > 0);
     return { text: drawn, placements };

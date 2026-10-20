@@ -26,6 +26,8 @@ export type WorksheetConfig = {
   promptStyle: PromptStyle;
   practiceMode: PracticeMode;
   writingHand: WritingHand;
+  /** Extra space between adjacent characters, in physical millimeters. */
+  characterSpacing: number;
   showName: boolean;
   showDate: boolean;
 };

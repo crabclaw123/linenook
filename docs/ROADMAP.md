@@ -27,6 +27,8 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] **A4 support** in SVG, vector PDF, and browser print CSS
 - [x] **Saved settings and named presets**, stored only in this browser (no accounts)
 - [x] **Refined dotted tracing** with matched preview/PDF stroke measurements
+- [x] **Additional character-spacing control (0–8 mm)** that adjusts wrapping, live preview, PDF, and saved configurations
+- [x] **Visual QA refinements** to lowercase y's descender and Fade contrast for long text
 - [x] **Optional Name and Date fields**, with reserved header space to avoid overlapping writing rows
 - [x] New automated tests for modes, layouts, guide styles, storage, and PDF features
 - [ ] **Hands-on QA** of PDF, physical print, tracing readability, left-handed layouts, A4 paper selection and assistive labeling

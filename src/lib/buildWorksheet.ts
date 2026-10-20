@@ -54,6 +54,7 @@ export function buildWorksheet(config: WorksheetConfig): Worksheet {
     lineStyle: config.lineStyle,
     letterCase: config.letterCase,
     letterForm: config.letterForm,
+    characterSpacing: config.characterSpacing,
     promptStyle: config.promptStyle,
     practiceMode: config.practiceMode,
     writingHand: config.writingHand,

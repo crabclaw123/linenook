@@ -85,7 +85,7 @@ function ChoiceField<T extends string>({
 const MODES: readonly { id: PracticeMode; label: string; description: string }[] = [
   { id: "trace", label: "Trace", description: "Dotted guides for repeated tracing." },
   { id: "copy", label: "Copy", description: "A solid model with room to copy below." },
-  { id: "fade", label: "Fade", description: "Prompts gradually lighten toward independent writing." },
+  { id: "fade", label: "Fade", description: "Letters lighten down the page. Short phrases fade to blank rows; longer text lightens across its filled rows." },
   { id: "blank", label: "Blank", description: "Just the guidelines, with no letter prompts." },
 ];
 
@@ -247,6 +247,16 @@ function WorksheetSettings({
           help="Automatically reserves room for descending letters."
           value={gap} min={minimumRowGap(config.writingHeight)} max={22}
           onChange={(rowGap) => onChange(changeRowGap(config, rowGap))}
+        />
+        <SliderField
+          id="character-spacing"
+          label="Extra space between characters"
+          help="Adds room between letters and symbols without changing their size. At 0 mm, the original spacing is preserved. Longer text wraps automatically."
+          value={config.characterSpacing}
+          min={0}
+          max={8}
+          step={0.5}
+          onChange={(characterSpacing) => update({ characterSpacing })}
         />
         <div className="spacing-summary" aria-live="polite">
           <span className="spacing-miniature" aria-hidden="true"><i /><i /><i /></span>

@@ -17,6 +17,7 @@ export const defaultWorksheetConfig: WorksheetConfig = {
   promptStyle: "whole",
   practiceMode: "trace",
   writingHand: "right",
+  characterSpacing: 0,
   showName: false,
   showDate: false,
 };

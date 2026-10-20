@@ -68,7 +68,8 @@ export const HANDWRITING_GLYPHS: Readonly<Record<string, HandwritingGlyph>> = {
   v: glyph(7.2, "M .7 5 L 3.6 10 L 6.5 5"),
   w: glyph(10, "M .5 5 L 2.7 10 L 5 6.2 L 7.3 10 L 9.5 5"),
   x: glyph(7, "M .7 5 L 6.3 10", "M 6.3 5 L .7 10"),
-  y: glyph(7.5, "M .7 5 L 3.7 10 L 6.6 5 L 3.1 12.5 C 2.5 13.7 1.4 13.7 .9 13"),
+  // Two clean, separated strokes: a short left downstroke and a smooth right descender.
+  y: glyph(7.5, "M .8 5 L 3.3 10", "M 6.5 5 L 3.3 12.5 Q 2.4 14 1.1 13.4"),
   z: glyph(6.8, "M 1 5 L 5.9 5 L 1 10 L 5.9 10"),
 
   "0": glyph(8, "M 7 5 C 7 11 1 11 1 5 C 1 -1 7 -1 7 5"),

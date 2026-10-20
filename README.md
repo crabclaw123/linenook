@@ -17,10 +17,10 @@ Open the local Vite URL shown in your terminal.
 2. Under **Practice support**, select:
    - **Trace:** dotted letters on writing rows.
    - **Copy:** solid model on the first row and blank rows underneath (or one model per letter row).
-   - **Fade:** repeated dotted prompts gradually lighten to blank for independent writing.
+   - **Fade:** repeated dotted prompts gradually lighten to blank for independent writing. For longer nonrepeating text, cues progressively lighten across the rows that contain text.
    - **Blank:** empty guidelines.
 3. Switch **Whole word or phrase** to **One letter per row** for individual letters, and optionally choose uppercase, lowercase, alternative rounded letterforms, or left-handed Copy reference positioning.
-4. Under **Writing lines**, choose Compact, Everyday or Extra room. Adjust line height and row gap, choose Classic / Color cues / Double / Baseline only guidelines, and select **US Letter** or **A4**.
+4. Under **Writing lines**, choose Compact, Everyday or Extra room. Adjust line height, row gap, and **extra space between characters (0–8 mm)**; the latter adds a fixed physical amount of space without stretching letters, and text wraps automatically. Choose Classic / Color cues / Double / Baseline only guidelines, and select **US Letter** or **A4**.
 5. Optionally check **Name** and **Date** under Page Header. LineNook reserves space for those fields without overlapping the practice rows.
 6. Under **My saved setups**, save a named configuration and reload it later. Current settings also restore automatically in the same browser. The 20 most recently saved setups are stored locally; these do **not** sync across devices.
 7. Export **Download PDF** (vector) or **Print worksheet** (browser printing). All changes update the preview live.

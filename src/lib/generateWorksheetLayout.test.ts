@@ -17,4 +17,20 @@ describe("generateWorksheetLayout", () => {
       rows: [],
     });
   });
+  it("rejects writing heights larger than the row height", () => {
+    expect(() => generateWorksheetLayout(50, 300, 100, 150)).toThrow(
+      "Writing height cannot exceed row height."
+    );
+  });
+
+  it("rejects zero, negative, or non-finite writing heights", () => {
+    expect(() => generateWorksheetLayout(50, 300, 100, 0)).toThrow();
+    expect(() => generateWorksheetLayout(50, 300, 100, -20)).toThrow();
+    expect(() => generateWorksheetLayout(50, 300, 100, NaN)).toThrow();
+  });
+
+  it("rejects invalid starting positions", () => {
+    expect(() => generateWorksheetLayout(NaN, 300, 100, 60)).toThrow();
+  });
+
 });

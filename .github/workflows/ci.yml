@@ -3,7 +3,7 @@ name: LineNook checks
 on:
   push:
     branches:
-      - feature/worksheet-studio
+      - 'feature/**'
   pull_request:
     branches:
       - main

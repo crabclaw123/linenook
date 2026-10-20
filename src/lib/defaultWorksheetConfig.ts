@@ -6,8 +6,10 @@ export const defaultWorksheetConfig: WorksheetConfig = {
   paperSize: "letter",
   margin: 12.7,
   titleHeight: 20,
-  rowHeight: 30,
-  writingHeight: 20,
+  // Everyday preset: 14 mm writing zone + 10 mm gap for descenders.
+  rowHeight: 24,
+  writingHeight: 14,
+  fillPage: true,
   highlightBaseline: false,
   showTrace: true,
 };

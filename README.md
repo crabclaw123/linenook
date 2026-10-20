@@ -14,8 +14,8 @@ Open the local Vite URL displayed in your terminal.
 ## Make a worksheet
 
 1. Choose a starter preset (name, letters, numbers, sentence, or greeting), or write your own title and practice phrase.
-2. Adjust writing height, row height, margins, and baseline highlighting.
-3. Leave **Dotted tracing letters** on for traceable single-stroke letters, or turn it off for empty lines.
+2. Choose **Compact**, **Everyday**, or **Extra room** writing size. Fine-tune the top-to-baseline writing size and the gap **between** rows; LineNook calculates total row pitch and reserves clearance for descending letters automatically.
+3. Optionally choose **Spread rows down the page** to distribute leftover space between rows without stretching letters. Leave **Dotted tracing letters** on for traceable single-stroke letters, or turn it off for empty lines.
 4. Preview updates immediately. Short text repeats on each row; long sentences wrap down the page. If it exceeds the one-page space, a warning appears.
 5. Click **Download PDF** for a one-page, vector US Letter file, or **Print worksheet** for browser printing.
 
@@ -25,7 +25,7 @@ For physical printing choose **US Letter**, **Actual size / 100%**, and turn off
 
 - React and SVG for the editor and responsive preview.
 - Pure TypeScript layout calculations use millimeters.
-- The same original vector monoline character paths power both SVG dotted tracing and PDF export.
+- The same original vector monoline character paths and shared tracing-stroke styles power both SVG dotted tracing and PDF export. Dot size, spacing and contrast are tuned for more legible paper output.
 - Lightweight dependency-free PDF writer for a single page (no browser screenshot/rasterization).
 - Unit tests for layout, character support, wrapping, and PDF structure.
 

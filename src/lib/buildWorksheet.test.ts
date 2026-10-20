@@ -10,7 +10,7 @@ describe("buildWorksheet", () => {
     expect(worksheet.pageHeight).toBe(US_LETTER.height);
     expect(worksheet.area.width).toBeCloseTo(190.5);
     expect(worksheet.area.height).toBeCloseTo(234);
-    expect(worksheet.layout.rows.length).toBe(7);
+    expect(worksheet.layout.rows.length).toBe(9);
     expect(worksheet.title).toBe("My Handwriting Practice");
     expect(worksheet.practiceText).toBe("Hello");
     expect(worksheet.showTrace).toBe(true);

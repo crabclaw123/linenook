@@ -1,5 +1,6 @@
 import type { Worksheet } from "./buildWorksheet";
 import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "./traceLayout";
+import { TRACE_STYLE } from "./traceStyle";
 
 /**
  * Small dependency-free vector PDF writer for a single US Letter worksheet.
@@ -150,9 +151,9 @@ function contentStream(worksheet: Worksheet): string {
       "q",
       "1 J",
       "1 j",
-      rgb("#899d99") + " RG",
-      num(pt(0.54)) + " w",
-      "[" + num(pt(0.03)) + " " + num(pt(1.42)) + "] 0 d"
+      rgb(TRACE_STYLE.color) + " RG",
+      num(pt(TRACE_STYLE.strokeWidthMm)) + " w",
+      "[" + num(pt(TRACE_STYLE.dotLengthMm)) + " " + num(pt(TRACE_STYLE.dotGapMm)) + "] 0 d"
     );
     for (const row of tracing.rows) {
       for (const placement of row.placements) {

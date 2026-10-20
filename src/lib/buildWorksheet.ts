@@ -5,6 +5,7 @@ import type { PageArea } from "./calculatePageArea";
 import { US_LETTER } from "./pageDimensions";
 import { calculatePageArea } from "./calculatePageArea";
 import { generateWorksheetLayout } from "./generateWorksheetLayout";
+import { distributeRowSpacing } from "./distributeRowSpacing";
 
 export type Worksheet = {
   pageWidth: number;
@@ -29,12 +30,22 @@ export function buildWorksheet(config: WorksheetConfig): Worksheet {
     config.margin,
     config.titleHeight
   );
-  const layout = generateWorksheetLayout(
+
+  const originalLayout = generateWorksheetLayout(
     area.startY,
     area.height,
     config.rowHeight,
     config.writingHeight
   );
+  const layout = config.fillPage
+    ? {
+        rows: distributeRowSpacing(
+          originalLayout.rows,
+          area.height,
+          config.rowHeight
+        ),
+      }
+    : originalLayout;
 
   return {
     pageWidth: page.width,

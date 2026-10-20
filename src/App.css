@@ -133,11 +133,11 @@
 .preview-stage {
   background: #edf3ed; border: 1px solid #e5ebe5; border-radius: 14px;
   display: flex; justify-content: center; align-items: flex-start;
-  padding: 32px 30px; overflow: hidden;
+  padding: 20px 18px; overflow: hidden;
   background-image: radial-gradient(#d3ded4 .7px, transparent .7px); background-size: 17px 17px;
 }
 .paper-frame {
-  width: min(100%, 460px); background: white;
+  width: min(100%, 530px); background: white;
   box-shadow: 0 10px 30px rgba(35,67,55,.14), 0 2px 4px rgba(35,67,55,.08);
   line-height: 0;
 }
@@ -214,4 +214,94 @@
   .site-header, .main-content, .site-footer { display: none !important; }
   .print-sheet { display: block !important; width: 215.9mm; height: 279.4mm; overflow: hidden; }
   .print-sheet .worksheet-svg { width: 215.9mm; height: 279.4mm; }
+}
+
+
+/* Collapsible controls: the settings panel stays navigable as options grow. */
+.settings-section > summary {
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.settings-section > summary::-webkit-details-marker { display: none; }
+.settings-section > summary:focus-visible {
+  outline: 3px solid #6aab91;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.section-label .section-caret {
+  display: inline-block;
+  padding: 0;
+  margin-left: auto;
+  border: none;
+  color: #45816c;
+  font-size: 18px;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform .2s;
+}
+.settings-section[open] .section-caret { transform: rotate(0deg); }
+
+.line-size-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 9px;
+}
+.line-size-option {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 13px 7px;
+  border-radius: 11px;
+  border: 1px solid #dce9dd;
+  background: #f8faf7;
+  color: #526c5b;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.line-size-option:hover {
+  background: #edf5ec;
+  border-color: #a3c8aa;
+}
+.line-size-option.is-active {
+  color: #22614b;
+  background: #e9f5ed;
+  border-color: #6aae86;
+  box-shadow: inset 0 0 0 1px rgba(106,174,134,.12);
+}
+.line-size-option strong { font-size: 12px; white-space: nowrap; }
+.line-size-option small { color: #789484; font-size: 10px; white-space: nowrap; }
+.size-note { margin-bottom: 25px; }
+.spacing-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f0f7f0;
+  border: 1px solid #dceadd;
+  border-radius: 11px;
+  padding: 13px 14px;
+  margin: -2px 0 27px;
+  color: #426353;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.spacing-summary strong { color: #255f48; }
+.spacing-summary small { display: block; color: #779181; font-size: 11px; margin-top: 3px; }
+.spacing-miniature {
+  flex: 0 0 42px;
+  height: 36px;
+  display: grid;
+  align-content: space-between;
+  padding: 4px 0;
+}
+.spacing-miniature i { display: block; border-top: 2px solid #699989; }
+.spacing-miniature i:nth-child(2) { border-top: 2px dashed #a3bdb0; }
+
+@media (max-width: 430px) {
+  .line-size-options { gap: 5px; }
+  .line-size-option { padding: 12px 4px; }
+  .line-size-option strong { font-size: 11px; }
+  .line-size-option small { font-size: 9px; }
 }

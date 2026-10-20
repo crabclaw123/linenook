@@ -1,5 +1,13 @@
 import type { WorksheetConfig } from "../types/worksheet";
 import { WORKSHEET_PRESETS } from "../lib/worksheetPresets";
+import {
+  LINE_SIZE_PRESETS,
+  applyLineSizePreset,
+  changeRowGap,
+  changeWritingHeight,
+  getRowGap,
+  minimumRowGap,
+} from "../lib/worksheetSizing";
 
 type Props = {
   config: WorksheetConfig;
@@ -46,17 +54,20 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
     onChange({ ...config, ...patch });
   }
 
-  function updateRowHeight(rowHeight: number) {
-    update({
-      rowHeight,
-      writingHeight: Math.min(config.writingHeight, rowHeight),
-    });
-  }
+  const gap = getRowGap(config);
+  const activeSize = LINE_SIZE_PRESETS.find(
+    (preset) =>
+      preset.writingHeight === config.writingHeight &&
+      preset.gap === gap
+  );
 
   return (
     <div className="settings-body">
-      <div className="settings-section">
-        <div className="section-label"><span>01</span> YOUR CONTENT</div>
+      <details className="settings-section" open>
+        <summary className="section-label">
+          <span>01</span> YOUR CONTENT
+          <span className="section-caret" aria-hidden="true">⌄</span>
+        </summary>
         <div className="preset-label">Start with a template</div>
         <div className="preset-grid" aria-label="Worksheet presets">
           {WORKSHEET_PRESETS.map((preset) => {
@@ -100,43 +111,100 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
             placeholder="Letters, words, or a short sentence..."
           />
           <p className="field-help">
-            Dotted, single-stroke letters appear directly on the writing lines.
-            Short phrases repeat; longer text wraps onto additional rows.
+            Dotted letters follow your guidelines. Short phrases repeat;
+            longer text flows onto the next writing row.
           </p>
         </div>
-      </div>
+      </details>
 
-      <div className="settings-section line-settings">
-        <div className="section-label"><span>02</span> PAGE & LINES</div>
+      <details className="settings-section line-settings" open>
+        <summary className="section-label">
+          <span>02</span> WRITING LINES
+          <span className="section-caret" aria-hidden="true">⌄</span>
+        </summary>
+
+        <div className="preset-label">Choose a writing size</div>
+        <div className="line-size-options" aria-label="Writing size presets">
+          {LINE_SIZE_PRESETS.map((preset) => {
+            const active = activeSize?.id === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                className={"line-size-option" + (active ? " is-active" : "")}
+                aria-pressed={active}
+                onClick={() => onChange(applyLineSizePreset(config, preset.id))}
+              >
+                <strong>{preset.label}</strong>
+                <small>{preset.writingHeight} mm letters</small>
+              </button>
+            );
+          })}
+        </div>
+        <p className="field-help size-note">
+          Starting points, not standardized handwriting curriculum sizes. Fine-tune below.
+        </p>
+
         <SliderField
           id="writing-height"
-          label="Writing line height"
-          help="Space between the top guideline and baseline."
+          label="Writing line size"
+          help="Distance from the top guideline to the baseline. Lowercase letters use the middle line."
           value={config.writingHeight}
           min={8}
-          max={Math.min(32, config.rowHeight)}
-          onChange={(writingHeight) => update({ writingHeight })}
+          max={24}
+          onChange={(writingHeight) =>
+            onChange(changeWritingHeight(config, writingHeight))
+          }
         />
         <SliderField
-          id="row-height"
-          label="Row height"
-          help="Total space for each handwriting row, including the gap."
-          value={config.rowHeight}
-          min={20}
-          max={48}
-          onChange={updateRowHeight}
+          id="row-gap"
+          label="Space between writing rows"
+          help="LineNook protects extra room for letters that descend below the baseline."
+          value={gap}
+          min={minimumRowGap(config.writingHeight)}
+          max={22}
+          onChange={(rowGap) =>
+            onChange(changeRowGap(config, rowGap))
+          }
         />
+        <div className="spacing-summary" aria-live="polite">
+          <span className="spacing-miniature" aria-hidden="true">
+            <i /><i /><i />
+          </span>
+          <span>
+            <strong>{config.writingHeight} mm</strong> writing space +{" "}
+            <strong>{gap} mm</strong> minimum gap.
+            <small>We calculate the row height for you.</small>
+          </span>
+        </div>
+
         <SliderField
           id="page-margin"
           label="Page margins"
-          help="Blank space around the edges of the page."
+          help="Blank space around the edges of your US Letter sheet."
           value={config.margin}
           min={8}
           max={25}
           step={0.5}
           onChange={(margin) => update({ margin })}
         />
-        <label className="toggle-row" htmlFor="show-trace">
+
+        <label className="toggle-row" htmlFor="fill-page">
+          <span>
+            <strong>Spread rows down the page</strong>
+            <small>Uses leftover page space for extra gaps without changing letter size.</small>
+          </span>
+          <span className="switch">
+            <input
+              id="fill-page"
+              type="checkbox"
+              checked={config.fillPage}
+              onChange={(event) => update({ fillPage: event.currentTarget.checked })}
+            />
+            <span className="switch-track" aria-hidden="true" />
+          </span>
+        </label>
+        <label className="toggle-row highlight-toggle" htmlFor="show-trace">
           <span>
             <strong>Dotted tracing letters</strong>
             <small>Turn off for blank handwriting lines.</small>
@@ -166,7 +234,8 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
             <span className="switch-track" aria-hidden="true" />
           </span>
         </label>
-      </div>
+      </details>
+
       <button className="reset-button" type="button" onClick={onReset}>
         <span aria-hidden="true">↺</span> Reset to defaults
       </button>

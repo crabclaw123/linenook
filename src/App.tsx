@@ -49,7 +49,7 @@ function App() {
           <div>
             <div className="eyebrow"><span className="eyebrow-dot" /> THE WORKSHEET STUDIO</div>
             <h1>A little space to <em>make progress.</em></h1>
-            <p>Thoughtful handwriting practice for every learner. Choose a starting point, adjust your lines, and print a page made just for them.</p>
+            <p>Thoughtful handwriting practice for every learner. Choose a line size, set comfortable spacing, and print a page made just for them.</p>
           </div>
           <div className="heading-note" aria-hidden="true">
             <span className="heading-note-line" />
@@ -90,7 +90,7 @@ function App() {
 
             {tracing.overflow && (
               <p className="worksheet-warning" role="status">
-                Your practice text needs more rows than fit on this page. Shorten it or reduce row height to fit all of the text.
+                Your practice text needs more rows than fit on this page. Shorten it or choose a smaller writing size and row gap to fit all of the text.
               </p>
             )}
             {tracing.unsupportedCharacters.length > 0 && config.showTrace && (

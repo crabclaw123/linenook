@@ -1,5 +1,6 @@
 import type { Worksheet } from "../lib/buildWorksheet";
 import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "../lib/traceLayout";
+import { TRACE_STYLE } from "../lib/traceStyle";
 
 type Props = {
   worksheet: Worksheet;
@@ -82,13 +83,14 @@ function WorksheetPreview({ worksheet, idPrefix = "preview" }: Props) {
                   "translate(" + placement.x + " " + placement.y +
                   ") scale(" + placement.scale + ")"
                 }
-                stroke="#899d99"
+                stroke={TRACE_STYLE.color}
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={0.54 / placement.scale}
+                strokeWidth={TRACE_STYLE.strokeWidthMm / placement.scale}
                 strokeDasharray={
-                  (0.03 / placement.scale) + " " + (1.42 / placement.scale)
+                  (TRACE_STYLE.dotLengthMm / placement.scale) + " " +
+                  (TRACE_STYLE.dotGapMm / placement.scale)
                 }
               />
             ))

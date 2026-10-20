@@ -6,9 +6,6 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 **Milestone:** A therapist, teacher, or parent can customize and print a usable handwriting practice page.
 
 - [x] Configurable letter-size worksheet geometry and validation
-- [x] Linked writing-height/row-gap controls with descender-safe spacing; Compact/Everyday/Extra room sizing starting points
-- [x] Optional even page-fill that distributes leftover space between rows without stretching letters
-- [x] Higher contrast dotted tracing strokes and a larger preview; collapsible control groups
 - [x] Live SVG preview and editing controls
 - [x] Original single-stroke **dotted tracing alphabet** (A–Z, a–z, numbers, common punctuation)
 - [x] Trace/blank-line toggle and long-phrase line wrapping

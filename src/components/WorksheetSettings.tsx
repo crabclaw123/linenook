@@ -1,4 +1,5 @@
 import type { WorksheetConfig } from "../types/worksheet";
+import { WORKSHEET_PRESETS } from "../lib/worksheetPresets";
 
 type Props = {
   config: WorksheetConfig;
@@ -56,6 +57,27 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
     <div className="settings-body">
       <div className="settings-section">
         <div className="section-label"><span>01</span> YOUR CONTENT</div>
+        <div className="preset-label">Start with a template</div>
+        <div className="preset-grid" aria-label="Worksheet presets">
+          {WORKSHEET_PRESETS.map((preset) => {
+            const active = config.title === preset.title &&
+              config.practiceText === preset.practiceText;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                className={"preset-chip" + (active ? " is-active" : "")}
+                aria-pressed={active}
+                onClick={() => update({
+                  title: preset.title,
+                  practiceText: preset.practiceText,
+                })}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
         <div className="text-field">
           <label htmlFor="worksheet-title">Worksheet title</label>
           <input
@@ -77,7 +99,10 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
             onChange={(event) => update({ practiceText: event.currentTarget.value })}
             placeholder="Letters, words, or a short sentence..."
           />
-          <p className="field-help">Shown in light gray as a sample on each line. Tracing fonts come later.</p>
+          <p className="field-help">
+            Dotted, single-stroke letters appear directly on the writing lines.
+            Short phrases repeat; longer text wraps onto additional rows.
+          </p>
         </div>
       </div>
 
@@ -86,7 +111,7 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
         <SliderField
           id="writing-height"
           label="Writing line height"
-          help="Space between the top line and baseline."
+          help="Space between the top guideline and baseline."
           value={config.writingHeight}
           min={8}
           max={Math.min(32, config.rowHeight)}
@@ -111,7 +136,22 @@ function WorksheetSettings({ config, onChange, onReset }: Props) {
           step={0.5}
           onChange={(margin) => update({ margin })}
         />
-        <label className="toggle-row" htmlFor="highlight-baseline">
+        <label className="toggle-row" htmlFor="show-trace">
+          <span>
+            <strong>Dotted tracing letters</strong>
+            <small>Turn off for blank handwriting lines.</small>
+          </span>
+          <span className="switch">
+            <input
+              id="show-trace"
+              type="checkbox"
+              checked={config.showTrace}
+              onChange={(event) => update({ showTrace: event.currentTarget.checked })}
+            />
+            <span className="switch-track" aria-hidden="true" />
+          </span>
+        </label>
+        <label className="toggle-row highlight-toggle" htmlFor="highlight-baseline">
           <span>
             <strong>Highlight the baseline</strong>
             <small>Add a warm color to the bottom writing line.</small>

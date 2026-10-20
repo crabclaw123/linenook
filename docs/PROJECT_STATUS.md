@@ -1,31 +1,36 @@
 # LineNook — Project Status
 
-LineNook is a browser-based tool for making customizable, printable handwriting worksheets for occupational therapists, teachers, and families.
+LineNook makes customizable, printable handwriting worksheets for OTs, teachers, and families.
 
 ## Stack
-React + TypeScript + Vite, Vitest, ESLint, SVG live preview. No backend for v1. Material UI and PDF export are potential later additions, not installed.
+React, TypeScript, Vite, Vitest, ESLint, SVG. No backend; the single-page vector PDF export has **no added dependencies**.
 
 ## Branch
-`feature/worksheet-studio` (merge to `main` after QA).
+`feature/worksheet-studio` — leave `main` unchanged pending testing and review.
 
-## Completed
-- Page dimensions and usable-page-area calculations in millimeters.
-- Row counting, row positions, top/middle/baseline guideline geometry.
-- Input validation and unit/integration tests for the worksheet engine.
-- `WorksheetConfig`, default settings, and `buildWorksheet()` orchestration.
-- Step 20: Responsive worksheet studio UI with live US Letter SVG preview, editable worksheet title and practice phrase, controls for writing height, row height, margins, baseline highlighting, and reset.
+## Phase 1 — Feature implementation complete, pending QA
+- Reusable millimeter-based worksheet layout and input validation.
+- US Letter SVG preview, title, editable practice phrase, and spacing controls.
+- Original vector single-stroke dotted alphabet for uppercase/lowercase A–Z, digits, and common punctuation; clips at page margins.
+- Short phrases repeat on each line; long phrases wrap and report overflow.
+- Optional blank guidelines, optional highlighted baseline.
+- Ready-made name, letter, number, sentence, and greeting presets.
+- PDF download exports vector guidelines and tracing on a 612 × 792 pt Letter page.
+- Dedicated print stylesheet prints the worksheet without the web UI.
+- Unit tests cover geometry, wrapping, common glyphs, PDF format/content.
+- New roadmap is in [ROADMAP.md](ROADMAP.md).
 
-## Current behavior and limitations
-- SVG uses engine-calculated millimeter coordinates and visually scales to the screen.
-- Practice phrase is drawn in light gray as a **sample**, not a tracing/dotted handwriting font. Multiple lines of input are flattened to one sample phrase.
-- Worksheet is a live on-screen preview only; no printable PDF generation or save/load yet.
-- Only US Letter paper is supported, and title-height reservation is fixed at 20 mm.
+## Release checks
+Run `npm run test:run`, `npm run lint`, and `npm run build`.
+Then visually compare downloaded PDF with the preview and print one page **at 100% / Actual size** with browser headers/footers disabled. Inspect baseline, dashed middle, dotted letters, margins, descenders, and line counts. Do not merge to main until QA passes.
 
-## Next
-1. QA the preview on desktop and mobile; verify row count and controls react as expected.
-2. Design correct handwriting/tracing lettering and its placement.
-3. Add print/PDF output with accurate paper dimensions.
-4. Add presets for common handwriting interventions and optional expanded paper sizes.
+## MVP limitations
+- One letter-size page per worksheet; no automatic multipage export.
+- Tracing glyphs are an original prototype, not a clinically standardized school handwriting font.
+- Some symbols/diacritics not supported (shown as question marks in the trace, with a warning).
+- PDF title uses built-in Helvetica and transliterates unsupported Unicode.
+- Full-page text beyond available rows triggers an overflow warning; shorten input or reduce row height.
+- No save/load or account backend (planned later).
 
 ## Workflow
-Keep geometry pure and UI independent; work on a feature branch, run `npm run test:run`, `npm run lint`, and `npm run build` locally before merging.
+Pure geometry and shared SVG/PDF trace layout. Keep QA on the feature branch; update this file at significant milestones.

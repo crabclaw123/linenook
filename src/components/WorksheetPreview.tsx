@@ -1,39 +1,40 @@
 import type { Worksheet } from "../lib/buildWorksheet";
+import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "../lib/traceLayout";
 
 type Props = {
   worksheet: Worksheet;
+  idPrefix?: string;
 };
 
-/**
- * Draws a US Letter worksheet using the engine's millimeter coordinates.
- * The gray practice text is a visual sample, not a tracing font.
- */
-function WorksheetPreview({ worksheet }: Props) {
+/** The worksheet's SVG and PDF use the same vector glyphs and millimeter geometry. */
+function WorksheetPreview({ worksheet, idPrefix = "preview" }: Props) {
   const { pageWidth, pageHeight, area, layout } = worksheet;
   const x1 = area.startX;
   const x2 = area.startX + area.width;
-  const sample = worksheet.practiceText.replace(/\s+/g, " ").trim();
+  const clipId = idPrefix + "-content-clip";
+  const titleId = idPrefix + "-worksheet-title";
+  const traceLayout = getWorksheetTraceLayout(worksheet);
 
   return (
     <svg
       className="worksheet-svg"
-      viewBox={`0 0 ${pageWidth} ${pageHeight}`}
+      viewBox={"0 0 " + pageWidth + " " + pageHeight}
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-labelledby="worksheet-svg-title"
+      aria-labelledby={titleId}
       preserveAspectRatio="xMidYMid meet"
     >
-      <title id="worksheet-svg-title">
-        {worksheet.title.trim() || "Handwriting worksheet"} — {layout.rows.length} practice rows
+      <title id={titleId}>
+        {(worksheet.title.trim() || "Handwriting worksheet") + " — " + layout.rows.length + " practice rows"}
       </title>
       <defs>
-        <clipPath id="worksheet-content-clip">
+        <clipPath id={clipId}>
           <rect x={x1} y={0} width={area.width} height={pageHeight} />
         </clipPath>
       </defs>
-      <rect x={0} y={0} width={pageWidth} height={pageHeight} fill="#fff" />
+      <rect width={pageWidth} height={pageHeight} fill="#fff" />
 
-      <g clipPath="url(#worksheet-content-clip)">
+      <g clipPath={"url(#" + clipId + ")"}>
         {worksheet.title.trim() && (
           <text
             x={x1}
@@ -41,7 +42,7 @@ function WorksheetPreview({ worksheet }: Props) {
             fill="#263d3b"
             fontFamily="Arial, Helvetica, sans-serif"
             fontWeight="700"
-            fontSize={7.1}
+            fontSize={getWorksheetTitleSizeMm(worksheet)}
           >
             {worksheet.title}
           </text>
@@ -67,23 +68,33 @@ function WorksheetPreview({ worksheet }: Props) {
             stroke={worksheet.highlightBaseline ? "#df9869" : "#65858c"}
             strokeWidth={worksheet.highlightBaseline ? 0.65 : 0.4}
           />
-          {sample && (
-            <g clipPath="url(#worksheet-content-clip)">
-              <text
-                x={x1 + 2}
-                y={row.baseline - 1.4}
-                fontFamily="Arial, Helvetica, sans-serif"
-                fontSize={Math.min(16, (row.baseline - row.top) * 0.75)}
-                fontWeight="400"
-                fill="#b4c2c0"
-                opacity={0.7}
-              >
-                {sample}
-              </text>
-            </g>
-          )}
         </g>
       ))}
+
+      <g clipPath={"url(#" + clipId + ")"}>
+        {traceLayout.rows.flatMap((row, rowIndex) =>
+          row.placements.flatMap((placement, glyphIndex) =>
+            placement.glyph.strokes.map((path, pathIndex) => (
+              <path
+                key={rowIndex + "-" + glyphIndex + "-" + pathIndex}
+                d={path}
+                transform={
+                  "translate(" + placement.x + " " + placement.y +
+                  ") scale(" + placement.scale + ")"
+                }
+                stroke="#899d99"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={0.54 / placement.scale}
+                strokeDasharray={
+                  (0.03 / placement.scale) + " " + (1.42 / placement.scale)
+                }
+              />
+            ))
+          )
+        )}
+      </g>
     </svg>
   );
 }

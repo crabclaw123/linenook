@@ -14,18 +14,21 @@ export type Worksheet = {
   title: string;
   practiceText: string;
   highlightBaseline: boolean;
+  showTrace: boolean;
 };
 
 export function buildWorksheet(config: WorksheetConfig): Worksheet {
-  const page = US_LETTER;
+  if (config.paperSize !== "letter") {
+    throw new Error("Only US Letter paper is currently supported.");
+  }
 
+  const page = US_LETTER;
   const area = calculatePageArea(
     page.width,
     page.height,
     config.margin,
     config.titleHeight
   );
-
   const layout = generateWorksheetLayout(
     area.startY,
     area.height,
@@ -41,5 +44,6 @@ export function buildWorksheet(config: WorksheetConfig): Worksheet {
     title: config.title,
     practiceText: config.practiceText,
     highlightBaseline: config.highlightBaseline,
+    showTrace: config.showTrace,
   };
 }

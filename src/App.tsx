@@ -1,4 +1,4 @@
-import WorksheetSettings from "./component/WorksheetSettings";
+import WorksheetSettings from "./components/WorksheetSettings";
 
 function App() {
   return (

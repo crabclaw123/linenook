@@ -40,6 +40,8 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [ ] Letter formation progression and themed activities
 - [ ] Shareable/exportable presets
 - [ ] Reusable activity templates
+- [ ] Option to highlight chosen parts of worksheet (e.g, "The cat is small", being able to highlight "cat")
+- [ ] Combining trace, copy, fade on one worksheet (e.g., "the cat is small" copy "the, is, and small" trace cat)
 
 ## Phase 4 — Interactive handwriting (research)
 **Milestone:** Investigate whether a stylus-enabled version benefits learners.

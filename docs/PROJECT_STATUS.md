@@ -1,50 +1,82 @@
 # LineNook — Project Status
 
-LineNook makes customizable, printable handwriting worksheets for OTs, teachers, and families.
+**Updated:** October 21, 2026  
+**Product:** Browser-based studio for creating printable handwriting practice worksheets for occupational therapists, educators, and families.
 
-## Stack
-React, TypeScript, Vite, Vitest, ESLint, SVG. No backend and no new PDF dependencies.
+## Current snapshot
 
-## Branch strategy
-- `main`: merged Phase 1 baseline; leave unchanged until review and pull request.
-- `feature/phase-2-worksheet-enhancements`: Phase 2 implementation and hands-on QA.
+**Phase 1:** Merged into `main`. The roadmap marks its initial hands-on print QA complete.  
+**Phase 2:** Implemented on `feature/phase-2-worksheet-enhancements`; the user has visually reviewed the updated interface and Fade experience positively. **Final Phase 2 hands-on QA and release review remain open.**  
+**Phase 3:** Not started; existing plan is the worksheet activity library.
 
-## Phase 2 — Feature implementation, pending physical and clinical QA
-- Four guideline styles: classic top/dashed mid/baseline, color-cued three lines, double line and baseline only.
-- Options for trace, solid exemplar followed by copying lines, fading trace, and blank guidelines.
-- One letter per row for targeted practice, and uppercase/lowercase conversion.
-- Simple and rounded prototype manuscript alternatives for a, g, t and I; cleaned up common baseline curves.
-- Left-handed Copy reference placed on the right-hand side of the paper.
-- Optional Name/Date blanks positioned below worksheet title; 13 mm reserved header space so no writing-row overlap.
-- Both US Letter and A4 pages; SVG and PDF use shared physical millimeter measurements.
-- Browser-local current-setting restoration and up to 20 reusable named presets.
-- Refined stroke thickness/dot spacing in both printable PDF and live SVG preview.
-- Phase 2 QA refinements: cleaner two-stroke lowercase **y** descender; a 0–8 mm **extra character spacing** slider affecting line wrapping and actual SVG/PDF glyph positions; increased Fade contrast when longer content only occupies a few rows.
+Latest verified Phase 2 CI: [GitHub Actions — passing run](https://github.com/crabclaw123/linenook/actions/runs/39360921115) on commit `20452db` — **62/62 unit tests passing**, ESLint passing, and production build passing. Tests establish technical behavior, not clinical effectiveness or physical print fidelity.
 
-## Testing
-CI should run:
-```bash
-npm run test:run
-npm run lint
-npm run build
-```
+## Technology and architecture
 
-## Hands-on QA before marking Phase 2 production ready
-1. Open presets and try Trace, Copy, Fade, and Blank for “Hello” and “happy puppy.” Also compare Fade vs Trace with the alphabet or content spread over 2–3 rows.
-2. Toggle **One letter per row**, switch uppercase/lowercase, and compare simple/rounded alternatives including **a g t I**.
-3. In Copy mode compare left-handed vs standard. Verify the right-side model remains visible and leaves writing space.
-4. Enable Name and Date together and individually; ensure title, header fields, and first writing row never overlap.
-5. Test every guideline style and baseline color, sizes, page-space distribution, and extra character spacing (0, 4, 8 mm). Inspect that long text reflows rather than clipping.
-6. Download US Letter and A4 PDFs and compare their glyphs, lines, positions, headers, and colors to the browser preview.
-7. Print both formats at **100% / Actual size**, disable headers and footers, select the corresponding physical paper size, inspect descenders **g j p q y**, check line gaps.
-8. Test named preset save, load, overwrite, deletion, and reload, including in a browser where storage is disabled.
-9. Clinically inspect stroke directions, manuscript conventions, alternative shapes, and any handwriting prompts. No clinician review has yet been recorded.
+- **Frontend:** React, TypeScript, Vite, CSS, SVG.
+- **Testing:** Vitest, ESLint, TypeScript build; GitHub Actions checks feature-branch pushes and PRs to `main`.
+- **Layout:** Shared millimeter-based page geometry, writing-row positions, tracing placements, and guideline styles across SVG preview and exported PDF.
+- **Export:** One-page, dependency-free vector PDF plus browser print view.
+- **Persistence:** Browser `localStorage`; no accounts, database, backend, or cloud synchronization.
+
+## Delivered functionality
+
+### Phase 1 — Printable worksheet studio
+
+- Responsive two-panel editor, immediate US Letter live preview, and editable worksheet title/practice text.
+- Writing-size presets (Compact / Everyday / Extra room) and linked writing-height + row-gap controls that reserve space for descenders.
+- Page-margin controls and optional distribution of unused vertical space between rows without distorting writing height.
+- Original monoline uppercase/lowercase letters, digits, and punctuation rendered as dotted tracing; blank-line alternative.
+- Basic content templates, text wrapping, overflow and unsupported-symbol warnings.
+- Matching PDF download and printable worksheet view.
+
+### Phase 2 — Clinical and educational customization (implemented; QA ongoing)
+
+- **Guidelines:** Classic top/middle/baseline, colored top/middle/baseline cues, double-line, and baseline-only styles; optional warm baseline emphasis.
+- **Graded practice:** Trace, Copy (solid reference with blank writing rows), Fade (progressively lighter prompts), and Blank.
+- **Fade refinement:** Repeated short prompts fade toward independent blank rows; longer content now lightens across the *rows that actually contain text*, making the difference from Trace visible.
+- **Text options:** Whole-phrase or one-letter-per-row prompts; uppercase/lowercase/as-typed choices; original simple manuscript and alternate rounded forms for selected characters.
+- **Letterform refinement:** Improved several prototype glyphs, including a revised two-stroke lowercase **y** descender flagged during screenshot QA.
+- **Handedness:** Left-handed Copy mode positions the exemplar to the right to reduce potential hand obstruction.
+- **Paper:** US Letter and A4 geometry for live preview, PDF export, and print.
+- **Header:** Optional **Name** and **Date** fields with dedicated vertical space above the first writing row.
+- **Spacing:** User-adjustable **extra character spacing from 0–8 mm**; added physical spacing is consistent in text measurement, wrapping, SVG preview, PDF, and saved setups.
+- **Reusable settings:** Automatic local draft restoration and up to 20 named, browser-local presets, including save/load/delete.
+
+## QA evidence and outstanding release checks
+
+**Completed / observed**
+- Automated suite: **62 tests in 12 files**, all passing at the last verified run; lint and build passed.
+- User screenshots showed correct rendering of an alphabet sample, guideline styling, and Fade progression for `HELLO`; user approved the latest visual direction.
+- Specific screenshot-reported defects were addressed: awkward lowercase **y**, Fade being barely distinguishable with long content, and a need for wider character spacing.
+- The [roadmap](ROADMAP.md) currently marks Phase 1 print QA and an internal clinician letterform review/sign-off item checked. **No standardized-curriculum certification or independently documented clinical validation is implied by those checkboxes.**
+
+**Still to verify before merging Phase 2 into `main`**
+1. Inspect newly revised lowercase **y**, plus **g, j, p, q** and every alternate manuscript letterform, at the actual printed writing size.
+2. Exercise 0, 3, 6, and 8 mm character spacing with short and long phrases; check legibility, wrap behavior, and that no text clips.
+3. Compare Trace vs Fade using `Hello`, `HELLO`, and longer alphabet/sentence content; determine whether grading of long, nonrepeating text meets the intended OT use case.
+4. Check Copy for right-/left-handed settings, whole-phrase and letter-by-letter modes, and preservation of usable blank writing space.
+5. Compare **PDF to browser preview** for all guideline styles, colored baselines, Name/Date headers, and Letter/A4 sizes; physically print at **100% / Actual size** with matching paper and browser headers/footers disabled.
+6. Verify saved setups (create, replace, load, delete, reload), mobile layout, overflow warnings, and blocked/unavailable browser storage.
+
+## Product decisions and open questions
+
+- The Phase 2 interface and its controls are sufficiently established to prioritize **clinical usability, physical print quality, and handwriting mechanics** over adding more UI features.
+- The current Fade implementation removes visual information rather than reducing letter size or guideline height. An optional future intensity control (**gentle / moderate / strong**) could improve grading.
+- **Long-text Fade needs instructional review:** fading different portions of a sentence is not the same as practicing and gradually fading *the same* motor sequence. Repeated-target fading could become a later enhancement.
+- Review whether 8 mm maximum extra character spacing is useful or whether a tighter range better serves typical intervention activities.
 
 ## Known limitations
-- One page per worksheet; no automatic multipage export.
-- Original prototype glyphs; **not clinically validated** or standardized handwriting-curriculum letterforms.
-- Some symbols and diacritics are replaced with '?' in tracing and flagged with a warning.
-- PDF title and Name/Date labels use PDF built-in Helvetica; titles transliterate unsupported Unicode.
-- Browser-only saved settings and presets; browser storage may be cleared, and there is no cloud syncing.
-- Letter-by-letter prompts take one row per character; excess characters trigger a warning.
-- Printing depends on browser/printer settings, including correct physical paper size and 100% scaling.
+
+- Only **one-page PDF export**; no multipage output.
+- LineNook glyphs are **original prototype teaching shapes**, not a standardized, licensed, or independently validated handwriting curriculum. Clinical review of formation conventions should continue.
+- Some Unicode characters/diacritics are not supported in tracing and become `?` with a visible warning; PDF titles use built-in Helvetica with basic transliteration.
+- Browser-only saved data may disappear if local site storage is cleared and does not sync between devices.
+- Letter-by-letter mode uses one row per target letter; extra targets generate an overflow warning.
+- Physical results vary with printer margins, scaling, and color settings.
+
+## Next milestone
+
+Finish the Phase 2 QA checklist, document any fixes, and open a PR from `feature/phase-2-worksheet-enhancements` to `main` after review. **Do not treat Phase 2 as merged or production/clinically validated yet.**
+
+Phase 3 scope remains as defined in [ROADMAP.md](ROADMAP.md): name-writing and sentence-copying activities, letter-formation progressions, themed activities, shareable/exportable presets, and reusable activity templates.

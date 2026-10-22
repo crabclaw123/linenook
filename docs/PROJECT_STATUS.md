@@ -52,6 +52,13 @@ Latest verified Phase 2 CI: [GitHub Actions — passing run](https://github.com/
 - **Always-visible desktop preview:** A desktop split workspace uses an independently scrollable settings pane and sticky, viewport-fitted worksheet preview. Mobile/tablet keep the ordinary stacked layout.
 - **QA to perform:** On desktop, scroll to the bottom of the settings panel while viewing the live sheet and verify print remains the full-size original; test 1-line, 2-line, and 3-line phrases, reserved blank-row counts, Fade and Copy, plus A4 and saved presets.
 
+## Desktop preview balance — QA follow-up
+
+- The desktop editor now gives more horizontal space to the worksheet by reducing the settings column from 402 px to 342 px and trimming desktop-only preview padding.
+- The prior overly restrictive preview width cap was replaced with a viewport-aware, larger paper width; settings still scroll independently, while the preview can scroll on shorter displays.
+- SVG page measurements, PDF export, and the `@media print` stylesheet are unchanged. The narrow-screen stacked layout is preserved.
+- **Visual QA still required:** confirm the whole worksheet remains comfortably readable at typical desktop heights, the paper is accessible on shorter windows, and all settings remain reachable without scrolling the page away from the preview.
+
 ## QA evidence and outstanding release checks
 
 **Completed / observed**

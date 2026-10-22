@@ -380,6 +380,11 @@
  * disappear under the browser edge. Printing uses the unscaled SVG below.
  */
 @media screen and (min-width: 991px) {
+  /* Give the actual worksheet priority over the control column. */
+  .studio-grid {
+    grid-template-columns: minmax(300px, 342px) minmax(0, 1fr);
+    gap: 20px;
+  }
   .settings-panel, .preview-panel {
     position: sticky;
     top: 14px;
@@ -392,29 +397,43 @@
     height: calc(100vh - 28px);
     height: calc(100dvh - 28px);
   }
-  .panel-heading { flex: 0 0 auto; }
+  .panel-heading { flex: 0 0 auto; padding: 19px 20px; }
   .settings-body {
     flex: 1 1 auto;
     min-height: 0;
+    padding: 4px 20px 22px;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: #b8d1bf transparent;
   }
-  .preview-panel { display: flex; flex-direction: column; }
+  .preview-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 16px;
+  }
+  .preview-heading { margin-bottom: 12px; }
   .preview-heading, .export-actions, .preview-footer { flex: 0 0 auto; }
   .preview-stage {
     flex: 1 1 auto;
     min-height: 0;
-    align-items: center;
+    padding: 12px 14px;
+    align-items: flex-start;
     overflow: auto;
     scrollbar-width: thin;
   }
   .paper-frame {
     flex: 0 0 auto;
-    width: min(100%, 530px, calc((100dvh - 300px) * 0.69));
+    /*
+     * The old (100dvh - 300px) * .69 cap made paper unnecessarily tiny.
+     * Use most of the available viewport height, with a sensible minimum.
+     * Short screens can scroll the preview without hiding the settings.
+     */
+    width: min(100%, 560px, max(390px, calc((100dvh - 255px) * 0.77)));
   }
-  .preview-footer { margin-top: 14px; }
+  .export-actions { padding-top: 12px; }
+  .export-actions button { padding: 11px 10px; }
+  .preview-footer { margin-top: 10px; padding-top: 10px; }
 }
 
 .blank-practice-control { margin: 0 0 24px; }

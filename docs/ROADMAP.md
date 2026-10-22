@@ -31,6 +31,8 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] **Visual QA refinements** to lowercase y's descender and Fade contrast for long text
 - [x] **Optional Name and Date fields**, with reserved header space to avoid overlapping writing rows
 - [x] New automated tests for modes, layouts, guide styles, storage, and PDF features
+- [ ] Ability to choose multiple shapes for one worksheet
+- [ ] Ability to mix and match shapes, letters, numbers, etc on one worksheet
 - [ ] **Hands-on QA** of PDF, physical print, tracing readability, left-handed layouts, A4 paper selection and assistive labeling
 
 ## QA stabilization — Worksheet repetition and preview layout ✅ Implemented, user-reviewed (merge pending)

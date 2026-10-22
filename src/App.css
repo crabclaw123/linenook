@@ -449,3 +449,114 @@
 .blank-practice-control .field-topline { align-items: center; }
 .blank-practice-control .field-topline label { margin-bottom: 3px; }
 .blank-practice-control .field-topline output { margin-bottom: 3px; }
+
+/* Phase 3 — selectable text cues, activity library and portable presets */
+.mode-intro { margin: -3px 0 12px; }
+.library-intro { margin: -7px 0 15px; }
+.library-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+.library-categories button {
+  border: 1px solid #dbe8dc;
+  background: #f6faf6;
+  color: #537464;
+  border-radius: 18px;
+  padding: 7px 9px;
+  font-weight: 750;
+  font-size: 10px;
+}
+.library-categories button:hover,
+.library-categories button.is-active {
+  background: #e3f2e8;
+  color: #256048;
+  border-color: #70b58e;
+}
+.activity-list { display: grid; gap: 8px; }
+.activity-list > button {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 5px;
+  padding: 11px 34px 12px 13px;
+  background: #fbfdfa;
+  border: 1px solid #e0eae1;
+  border-radius: 10px;
+  color: #325e49;
+}
+.activity-list > button:hover { background: #ebf5ed; border-color: #add0b4; }
+.activity-list > button strong { font-size: 12px; }
+.activity-list > button small { font-size: 11px; color: #789184; }
+.activity-list > button span {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 15px;
+}
+.text-style-panel {
+  padding: 14px 13px 12px;
+  border: 1px solid #dce8dc;
+  background: #f5f9f3;
+  border-radius: 11px;
+  margin: 13px 0 0;
+}
+.text-style-heading { display: block; font-size: 12px; color: #295741; }
+.selection-readout {
+  margin: 6px 0 13px;
+  font-size: 11px;
+  color: #668877;
+  overflow-wrap: anywhere;
+}
+.style-toolbar-label {
+  display: block;
+  margin: 13px 0 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #4a6d58;
+}
+.text-style-actions { display: flex; flex-wrap: wrap; gap: 5px; }
+.text-style-actions button {
+  background: #fff; border: 1px solid #d8e5d8;
+  color: #426a57; border-radius: 7px;
+  font-weight: 750; font-size: 10px; padding: 8px 9px;
+}
+.text-style-actions button:hover:not(:disabled) {
+  border-color: #81ad92; background: #eaf3ed;
+}
+.text-style-actions button:disabled { opacity: .46; cursor: not-allowed; }
+.text-style-actions .highlight-yellow { background: #fff0a7; border-color: #e7d785; }
+.text-style-actions .highlight-mint { background: #d8f2dd; border-color: #a3d1b1; }
+.text-style-actions .highlight-peach { background: #ffe0c5; border-color: #f0b9a0; }
+.text-style-mark-list {
+  margin-top: 13px; max-height: 180px; overflow-y: auto;
+  border-top: 1px solid #dce7de; padding-top: 4px;
+}
+.text-style-mark {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 7px; border-bottom: 1px solid #dce7de; padding: 7px 0;
+}
+.text-style-mark > span {
+  font-size: 11px; color: #2e5d48; min-width: 0; overflow-wrap: anywhere;
+}
+.text-style-mark small { color: #8ca396; font-size: 10px; display: block; margin-top: 2px; }
+.text-style-mark button {
+  border: 1px solid #e7d9d0; background: #fff5ef;
+  padding: 5px 9px; border-radius: 7px; color: #a66f50;
+}
+.preset-transfer-actions {
+  display: grid; grid-template-columns: 1fr; gap: 7px; margin-top: 16px;
+}
+.preset-transfer-actions button {
+  padding: 10px 12px;
+  background: #edf6ed; border: 1px solid #c9e2ce;
+  color: #2e6a4e; border-radius: 9px;
+  font-weight: 750; font-size: 11px;
+}
+.preset-transfer-actions button:hover { background: #e0f0e4; }
+.activity-list button:focus-visible,
+.text-style-actions button:focus-visible,
+.preset-transfer-actions button:focus-visible,
+.library-categories button:focus-visible {
+  outline: 3px solid #6aab91; outline-offset: 2px;
+}

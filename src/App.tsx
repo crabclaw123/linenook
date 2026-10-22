@@ -5,6 +5,7 @@ import { buildWorksheet } from "./lib/buildWorksheet";
 import { defaultWorksheetConfig } from "./lib/defaultWorksheetConfig";
 import { createWorksheetPdf, worksheetPdfFilename } from "./lib/exportWorksheetPdf";
 import { getWorksheetTraceLayout } from "./lib/traceLayout";
+import { parsePresetFile, portablePresetFilename, serializePresetFile } from "./lib/presetFile";
 import {
   loadCurrentConfig,
   loadSavedPresets,
@@ -26,7 +27,7 @@ function App() {
     persistCurrentConfig(config);
   }, [config]);
 
-  function savePreset(name: string) {
+  function savePreset(name: string, configToSave: WorksheetConfig = config) {
     const sanitized = name.trim().slice(0, 40);
     if (!sanitized) return;
     const match = savedPresets.find(
@@ -37,7 +38,7 @@ function App() {
         Math.random().toString(36).slice(2, 9)),
       name: sanitized,
       savedAt: new Date().toISOString(),
-      config: { ...config },
+      config: { ...configToSave },
     };
     const next = [saved, ...savedPresets.filter((item) => item.id !== saved.id)]
       .slice(0, 20);
@@ -63,6 +64,34 @@ function App() {
       setStorageMessage("Saved setup deleted from this browser.");
     } else {
       setStorageMessage("Browser storage is unavailable. Could not delete setup.");
+    }
+  }
+
+  function exportPreset(name: string, preset: WorksheetConfig) {
+    const blob = new Blob([serializePresetFile(name, preset)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = portablePresetFilename(name);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    setStorageMessage("Worksheet preset exported. Share the downloaded JSON file.");
+  }
+
+  async function importPreset(file: File): Promise<void> {
+    try {
+      if (file.size > 120_000) {
+        throw new Error("This preset is too large. The maximum is 120 KB.");
+      }
+      const imported = parsePresetFile(await file.text());
+      setConfig({ ...imported.config });
+      savePreset(imported.name, imported.config);
+    } catch (error) {
+      setStorageMessage(error instanceof Error ? error.message : "Unable to import preset.");
     }
   }
 
@@ -92,7 +121,7 @@ function App() {
           <span>LineNook<span className="brand-dot">.</span></span>
         </a>
         <span className="header-tag">
-          Handwriting worksheet studio <span className="header-version">/ v0.3</span>
+          Handwriting worksheet studio <span className="header-version">/ v0.4</span>
         </span>
       </header>
 
@@ -128,6 +157,8 @@ function App() {
               onLoadPreset={loadPreset}
               onDeletePreset={deletePreset}
               storageMessage={storageMessage}
+              onExportPreset={exportPreset}
+              onImportPreset={importPreset}
             />
           </aside>
 
@@ -152,7 +183,7 @@ function App() {
                 Try fewer reserved blank rows, smaller writing lines, or shorter text.
               </p>
             )}
-            {tracing.unsupportedCharacters.length > 0 &&
+            {config.activityType === "text" && tracing.unsupportedCharacters.length > 0 &&
                 config.showTrace && config.practiceMode !== "blank" && (
               <p className="worksheet-warning" role="status">
                 The tracing alphabet does not yet include: {tracing.unsupportedCharacters.join(" ")}.

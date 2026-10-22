@@ -3,6 +3,7 @@ import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "../lib/traceLa
 import { TRACE_STYLE, tracedColor } from "../lib/traceStyle";
 import { getGuidelineStrokes } from "../lib/guidelineStyle";
 import { getHeaderFields, getWorksheetTitleY } from "../lib/headerFields";
+import { HIGHLIGHT_COLORS } from "../lib/textMarks";
 
 type Props = {
   worksheet: Worksheet;
@@ -72,6 +73,22 @@ function WorksheetPreview({ worksheet, idPrefix = "preview" }: Props) {
             />
           </g>
         ))}
+      </g>
+
+      {/* Put printable highlight behind both guideline and glyph strokes. */}
+      <g clipPath={"url(#" + clipId + ")"}>
+        {traceLayout.rows.flatMap((row, rowIndex) =>
+          row.placements.filter((placement) => placement.highlight).map((placement, index) => (
+            <rect
+              key={"highlight-" + rowIndex + "-" + index}
+              x={placement.x}
+              y={placement.y + 0.55 * placement.scale}
+              width={(placement.glyph.width + 1.15) * placement.scale}
+              height={8.9 * placement.scale}
+              fill={HIGHLIGHT_COLORS[placement.highlight!]}
+            />
+          ))
+        )}
       </g>
 
       {layout.rows.map((row, index) => (

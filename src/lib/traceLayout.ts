@@ -1,11 +1,11 @@
 import type { Worksheet } from "./buildWorksheet";
 import {
-  LETTER_SPACING,
-  getHandwritingGlyph,
-  isHandwritingCharacterSupported,
+  LETTER_SPACING, getHandwritingGlyph, isHandwritingCharacterSupported,
   type HandwritingGlyph,
 } from "./handwritingGlyphs";
-import type { LetterForm } from "../types/worksheet";
+import { PREWRITING_SHAPES } from "./prewritingShapes";
+import { textStyleAt } from "./textMarks";
+import type { LetterCase, LetterForm, PracticeMode, HighlightTone } from "../types/worksheet";
 
 export type TracePlacement = {
   glyph: HandwritingGlyph;
@@ -14,6 +14,9 @@ export type TracePlacement = {
   scale: number;
   opacity: number;
   solid: boolean;
+  highlight?: HighlightTone;
+  /** Offset into the source textarea text; repeats use the original offset. */
+  sourceIndex?: number;
 };
 
 export type TraceRow = { text: string; placements: TracePlacement[] };
@@ -23,92 +26,178 @@ export type WorksheetTraceLayout = {
   unsupportedCharacters: string[];
 };
 
-export function transformPracticeText(text: string, letterCase: Worksheet["letterCase"]): string {
+export function transformPracticeText(text: string, letterCase: LetterCase): string {
   if (letterCase === "uppercase") return text.toUpperCase();
   if (letterCase === "lowercase") return text.toLowerCase();
   return text;
 }
 
 export function measureTraceText(
-  text: string,
-  letterForm: LetterForm = "simple",
-  spacingUnits = LETTER_SPACING
+  text: string, letterForm: LetterForm = "simple", spacingUnits = LETTER_SPACING
 ): number {
   return Array.from(text).reduce(
-    (total, character, index) => total +
-      getHandwritingGlyph(character, letterForm).width + (index ? spacingUnits : 0),
-    0
+    (total, character, index) =>
+      total + getHandwritingGlyph(character, letterForm).width +
+      (index ? spacingUnits : 0), 0
   );
 }
 
-/** Wrap at words where possible; very long words break at individual glyphs. */
+/** Legacy public helper retained for templates/tests and general wrapping. */
 export function wrapTraceText(
-  text: string,
-  maxUnits: number,
-  letterForm: LetterForm = "simple",
+  text: string, maxUnits: number, letterForm: LetterForm = "simple",
   spacingUnits = LETTER_SPACING
 ): string[] {
+  return wrapIndexedTraceText(text, "as-typed", maxUnits, letterForm, spacingUnits)
+    .map((line) => line.text);
+}
+
+type IndexedChar = { char: string; sourceIndex: number };
+export type IndexedLine = { text: string; chars: IndexedChar[] };
+
+function convertedChar(char: string, letterCase: LetterCase): string {
+  const result = transformPracticeText(char, letterCase);
+  // A case change that expands into multiple glyphs cannot safely inherit a
+  // single source selection offset: retain the original and warn.
+  return result.length === char.length ? result : char;
+}
+
+/** Wrap without losing original selection offsets through line breaks or repeats. */
+export function wrapIndexedTraceText(
+  source: string, letterCase: LetterCase, maxUnits: number,
+  letterForm: LetterForm = "simple", spacingUnits = LETTER_SPACING
+): IndexedLine[] {
   if (!Number.isFinite(maxUnits) || maxUnits <= 0) {
     throw new Error("Available tracing width must be positive and finite.");
   }
-  const lines: string[] = [];
-  for (const paragraph of text.replace(/\r\n?/g, "\n").split("\n")) {
-    let current = "";
-    for (const word of paragraph.trim().split(/\s+/).filter(Boolean)) {
-      const candidate = current ? current + " " + word : word;
-      if (measureTraceText(candidate, letterForm, spacingUnits) <= maxUnits) {
-        current = candidate;
-        continue;
-      }
-      if (current) {
-        lines.push(current);
-        current = "";
-      }
+  const result: IndexedLine[] = [];
+  let current: IndexedChar[] = [];
+  let lastWordEnd = 0;
+  const emit = () => {
+    if (current.length) {
+      result.push({ text: current.map((item) => item.char).join(""), chars: current });
+      current = [];
+    }
+  };
+  for (const match of source.matchAll(/\S+/g)) {
+    const sourceStart = match.index ?? 0;
+    const gap = source.slice(lastWordEnd, sourceStart);
+    if (gap.includes("\n") || gap.includes("\r")) emit();
+    const word: IndexedChar[] = [];
+    let offset = sourceStart;
+    for (const character of Array.from(match[0])) {
+      word.push({ char: convertedChar(character, letterCase), sourceIndex: offset });
+      offset += character.length;
+    }
+    const space: IndexedChar[] = current.length
+      ? [{ char: " ", sourceIndex: lastWordEnd }] : [];
+    const candidate = [...current, ...space, ...word];
+    if (measureTraceText(
+      candidate.map((item) => item.char).join(""), letterForm, spacingUnits
+    ) <= maxUnits) {
+      current = candidate;
+    } else {
+      emit();
       for (const character of word) {
-        if (current && measureTraceText(current + character, letterForm, spacingUnits) > maxUnits) {
-          lines.push(current);
-          current = "";
-        }
-        current += character;
+        const next = [...current, character];
+        if (current.length && measureTraceText(
+          next.map((item) => item.char).join(""), letterForm, spacingUnits
+        ) > maxUnits) emit();
+        current.push(character);
       }
     }
-    if (current) lines.push(current);
+    lastWordEnd = sourceStart + match[0].length;
   }
-  return lines;
+  emit();
+  return result;
 }
 
-function rowOpacity(index: number, rowCount: number): number {
-  return rowCount <= 1 ? 1 : 1 - index / (rowCount - 1);
+function fadedLevel(position: number, count: number): number {
+  return count <= 1 ? 1 : 1 - 0.75 * position / (count - 1);
+}
+
+function getShapeRows(worksheet: Worksheet, scale: number, maxUnits: number):
+  WorksheetTraceLayout {
+  const rows = worksheet.layout.rows;
+  const blank = Math.min(
+    Math.max(0, Math.floor(worksheet.blankPracticeRows)),
+    Math.max(0, rows.length - 1)
+  );
+  const available = rows.length - blank;
+  const shape = PREWRITING_SHAPES[worksheet.shapeId];
+  const spacingUnits = LETTER_SPACING + worksheet.characterSpacing / scale + 2;
+  const copies = Math.max(1, Math.min(8, Math.floor(
+    (maxUnits + spacingUnits) / (shape.glyph.width + spacingUnits)
+  )));
+  const drawnWidth = (copies * shape.glyph.width +
+    Math.max(0, copies - 1) * spacingUnits) * scale;
+
+  const shapeRows = rows.map((row, rowIndex): TraceRow => {
+    if (!worksheet.showTrace || worksheet.practiceMode === "blank" ||
+        rowIndex >= available ||
+        (worksheet.practiceMode === "copy" && rowIndex > 0)) {
+      return { text: "", placements: [] };
+    }
+    const solid = worksheet.practiceMode === "copy";
+    const opacity = worksheet.practiceMode === "fade"
+      ? fadedLevel(rowIndex, available) : 1;
+    const left = worksheet.area.startX + (worksheet.area.width - drawnWidth) / 2;
+    return {
+      text: shape.label,
+      placements: Array.from({ length: copies }, (_, index) => ({
+        glyph: shape.glyph,
+        x: left + index * (shape.glyph.width + spacingUnits) * scale,
+        y: row.top, scale, opacity, solid,
+      })),
+    };
+  });
+  return { rows: shapeRows, overflow: false, unsupportedCharacters: [] };
 }
 
 export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLayout {
-  const text = transformPracticeText(worksheet.practiceText, worksheet.letterCase);
-  const unsupportedCharacters = Array.from(new Set(
-    Array.from(text).filter((char) =>
-      !/\s/.test(char) && !isHandwritingCharacterSupported(char)
-    )
-  ));
-
   const rows = worksheet.layout.rows;
   const emptyRows = rows.map((): TraceRow => ({ text: "", placements: [] }));
-  if (!worksheet.showTrace || worksheet.practiceMode === "blank" || rows.length === 0) {
-    return { rows: emptyRows, overflow: false, unsupportedCharacters };
+  if (!rows.length) {
+    return { rows: emptyRows, overflow: false, unsupportedCharacters: [] };
   }
 
   const writingHeight = rows[0].baseline - rows[0].top;
   const scale = writingHeight / 10;
-  // Spacing is entered in millimeters, then converted into glyph units.
-  // Every SVG/PDF placement and line-wrap calculation uses this same value.
+  const maxUnits = (worksheet.area.width - 4) / scale;
+  if (worksheet.activityType === "shapes") {
+    return getShapeRows(worksheet, scale, maxUnits);
+  }
+
+  const source = worksheet.practiceText;
+  const display = Array.from(source).map((char) =>
+    convertedChar(char, worksheet.letterCase)).join("");
+  const unsupportedCharacters = Array.from(new Set(
+    Array.from(display).filter((char) =>
+      !/\s/.test(char) && !isHandwritingCharacterSupported(char)
+    )
+  ));
+  if (!worksheet.showTrace ||
+      (worksheet.practiceMode === "blank" &&
+        !worksheet.textMarks.some((mark) => mark.mode !== undefined))) {
+    return { rows: emptyRows, overflow: false, unsupportedCharacters };
+  }
+
   const spacingUnits = LETTER_SPACING + worksheet.characterSpacing / scale;
   const left = worksheet.area.startX + 2;
   const right = worksheet.area.startX + worksheet.area.width - 2;
-  const maxUnits = (worksheet.area.width - 4) / scale;
   const letterByLetter = worksheet.promptStyle === "letter-by-letter";
-  const items = letterByLetter
-    ? Array.from(text).filter((character) => !/\s/.test(character))
-    : wrapTraceText(text, maxUnits, worksheet.letterForm, spacingUnits);
+  const items: IndexedLine[] = letterByLetter
+    ? Array.from(source.matchAll(/\S/g)).map((match) => ({
+        text: convertedChar(match[0], worksheet.letterCase),
+        chars: [{
+          char: convertedChar(match[0], worksheet.letterCase),
+          sourceIndex: match.index ?? 0,
+        }],
+      }))
+    : wrapIndexedTraceText(
+        source, worksheet.letterCase, maxUnits, worksheet.letterForm, spacingUnits
+      );
+
   const copy = worksheet.practiceMode === "copy";
-  const fade = worksheet.practiceMode === "fade";
   const reservedBlankRows = Math.min(
     Math.max(0, Math.floor(worksheet.blankPracticeRows)),
     Math.max(0, rows.length - 1)
@@ -116,77 +205,71 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
   const availableRowCount = rows.length - reservedBlankRows;
   const blockLength = items.length;
   const completeBlockFits = blockLength > 0 && blockLength <= availableRowCount;
-
-  // A phrase that wraps to two or more rows is one reusable practice block.
-  // Repeat ONLY complete blocks; never leave half a sentence at the page bottom.
-  // Copy mode deliberately shows one model block followed by independent rows.
-  // One-letter-per-row preserves its existing targeted, one-pass progression.
   const blockCopies = !letterByLetter && !copy && completeBlockFits
-    ? Math.floor(availableRowCount / blockLength)
-    : 1;
+    ? Math.floor(availableRowCount / blockLength) : 1;
   const promptedRows = !letterByLetter && !copy && completeBlockFits
-    ? blockCopies * blockLength
-    : Math.min(blockLength, availableRowCount);
+    ? blockCopies * blockLength : Math.min(blockLength, availableRowCount);
 
   function fadeOpacity(rowIndex: number): number {
-    if (!fade) return 1;
     if (letterByLetter) return 1;
     if (completeBlockFits && blockCopies > 1) {
-      // Each complete repetition has an equally legible internal letter model.
-      // The next repetition fades, progressing toward independent practice.
-      const repetition = Math.floor(rowIndex / blockLength);
-      return 1 - 0.75 * repetition / (blockCopies - 1);
+      return fadedLevel(Math.floor(rowIndex / blockLength), blockCopies);
     }
-    // A single block (or an oversized phrase) grades across its visible rows.
-    const visibleInBlock = Math.min(blockLength, availableRowCount);
-    return visibleInBlock <= 1 ? 1 : 1 - 0.65 * rowIndex / (visibleInBlock - 1);
+    const visible = Math.min(blockLength, availableRowCount);
+    return visible <= 1 ? 1 : 1 - 0.65 * rowIndex / (visible - 1);
   }
 
   const traceRows = rows.map((row, rowIndex): TraceRow => {
     if (rowIndex >= promptedRows || blockLength === 0) {
       return { text: "", placements: [] };
     }
+    const item = items[letterByLetter || copy ? rowIndex : rowIndex % blockLength];
+    if (!item) return { text: "", placements: [] };
 
-    const rowText = items[
-      letterByLetter || copy ? rowIndex : rowIndex % blockLength
-    ] ?? "";
-    if (!rowText) return { text: "", placements: [] };
-
-    // Repeat individual letters only while the complete sequence fits.
-    // Account for extra space characters and custom letter spacing.
-    let copies = letterByLetter && !copy ? 5 : 1;
-    let drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
-    while (copies > 1 &&
-      measureTraceText(drawn, worksheet.letterForm, spacingUnits) > maxUnits) {
-      copies--;
-      drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
+    let chars = item.chars;
+    let drawn = item.text;
+    // Repeat single-letter targets across their own row without clipping.
+    if (letterByLetter && !copy) {
+      const original = item.chars[0];
+      let count = 5;
+      const candidates = (n: number): IndexedChar[] =>
+        Array.from({ length: n }, () => [{ ...original }]).flatMap(
+          (part, index) => index ? [{ char: " ", sourceIndex: -1 }, ...part] : part
+        );
+      chars = candidates(count);
+      while (count > 1 && measureTraceText(
+        chars.map((ch) => ch.char).join(""), worksheet.letterForm, spacingUnits
+      ) > maxUnits) {
+        count--;
+        chars = candidates(count);
+      }
+      drawn = chars.map((ch) => ch.char).join("");
     }
+
     const width = measureTraceText(drawn, worksheet.letterForm, spacingUnits) * scale;
     const referenceRight = copy && worksheet.writingHand === "left";
     let x = referenceRight ? right - width : left;
-    const opacity = fadeOpacity(rowIndex);
-    const characters = Array.from(drawn);
-
-    const placements: TracePlacement[] = characters.map((character, index) => {
-      const glyph = getHandwritingGlyph(character, worksheet.letterForm);
+    const fadeAtRow = fadeOpacity(rowIndex);
+    const placements: TracePlacement[] = chars.map(({ char, sourceIndex }, index) => {
+      const mark = sourceIndex >= 0 ? textStyleAt(worksheet.textMarks, sourceIndex) : {};
+      const mode: PracticeMode = mark.mode ?? worksheet.practiceMode;
+      const opacity = mode === "blank" ? 0 : mode === "fade"
+        ? (letterByLetter ? fadedLevel(index, chars.length) : fadeAtRow) : 1;
       const placement: TracePlacement = {
-        glyph, x, y: row.top, scale,
-        opacity: fade && letterByLetter
-          ? rowOpacity(index, characters.length)
-          : opacity,
-        solid: copy,
+        glyph: getHandwritingGlyph(char, worksheet.letterForm),
+        x, y: row.top, scale, opacity,
+        solid: mode === "copy",
+        highlight: mark.highlight,
+        sourceIndex,
       };
-      x += (glyph.width + spacingUnits) * scale;
+      x += (placement.glyph.width + spacingUnits) * scale;
       return placement;
-    }).filter((p) => p.opacity > 0);
+    }).filter((item) => item.opacity > 0);
     return { text: drawn, placements };
   });
 
   return {
     rows: traceRows,
-    // The full phrase must fit at least once within the usable writing rows.
-    // An incomplete repeated block at the end is intentional blank practice,
-    // not lost content or an overflow.
     overflow: blockLength > availableRowCount,
     unsupportedCharacters,
   };

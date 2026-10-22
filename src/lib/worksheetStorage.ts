@@ -1,6 +1,7 @@
 import { defaultWorksheetConfig } from "./defaultWorksheetConfig";
 import { minimumRowGap } from "./worksheetSizing";
 import type { WorksheetConfig } from "../types/worksheet";
+import { sanitizeTextMarks } from "./textMarks";
 
 export const CURRENT_CONFIG_KEY = "linenook:worksheet:config:v2";
 export const SAVED_PRESETS_KEY = "linenook:worksheet:presets:v2";
@@ -55,6 +56,11 @@ export function normalizeWorksheetConfig(data: unknown): WorksheetConfig {
   return {
     title: safeText(saved.title, defaults.title, 70),
     practiceText: safeText(saved.practiceText, defaults.practiceText, 120),
+    activityType: select(saved.activityType, ["text", "shapes"], defaults.activityType),
+    shapeId: select(saved.shapeId, ["horizontal", "vertical", "wave", "zigzag",
+      "circle", "square", "triangle", "spiral"], defaults.shapeId),
+    textMarks: sanitizeTextMarks(saved.textMarks,
+      safeText(saved.practiceText, defaults.practiceText, 120).length),
     paperSize: select(saved.paperSize, ["letter", "a4"], defaults.paperSize),
     margin: finiteInRange(saved.margin, defaults.margin, 8, 25),
     titleHeight: defaults.titleHeight,

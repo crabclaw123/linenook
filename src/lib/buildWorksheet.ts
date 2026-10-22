@@ -48,6 +48,9 @@ export function buildWorksheet(config: WorksheetConfig): Worksheet {
   return {
     title: config.title,
     practiceText: config.practiceText,
+    activityType: config.activityType,
+    shapeId: config.shapeId,
+    textMarks: config.textMarks,
     highlightBaseline: config.highlightBaseline,
     showTrace: config.showTrace,
     paperSize: config.paperSize,

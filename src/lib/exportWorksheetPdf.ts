@@ -3,6 +3,7 @@ import { getWorksheetTitleSizeMm, getWorksheetTraceLayout } from "./traceLayout"
 import { TRACE_STYLE, tracedColor } from "./traceStyle";
 import { getGuidelineStrokes } from "./guidelineStyle";
 import { getHeaderFields, getWorksheetTitleY } from "./headerFields";
+import { HIGHLIGHT_COLORS } from "./textMarks";
 
 /**
  * Small dependency-free vector PDF writer for a single worksheet.
@@ -120,6 +121,24 @@ function contentStream(worksheet: Worksheet): string {
   const commands: string[] = ["% LineNook vector handwriting worksheet"];
   const x1 = worksheet.area.startX;
   const x2 = x1 + worksheet.area.width;
+  const tracing = getWorksheetTraceLayout(worksheet);
+
+  // Print-highlight rectangles are genuine vector fills, not raster overlays.
+  // Draw them first so guides and tracing remain legible on top.
+  for (const row of tracing.rows) {
+    for (const placement of row.placements) {
+      if (!placement.highlight) continue;
+      const heightMm = 8.9 * placement.scale;
+      commands.push(
+        "q",
+        rgb(HIGHLIGHT_COLORS[placement.highlight]) + " rg",
+        coord(worksheet, placement.x, placement.y + 0.55 * placement.scale + heightMm) +
+          " " + num(pt((placement.glyph.width + 1.15) * placement.scale)) +
+          " " + num(pt(heightMm)) + " re f",
+        "Q"
+      );
+    }
+  }
 
   for (const row of worksheet.layout.rows) {
     for (const line of getGuidelineStrokes(
@@ -161,8 +180,7 @@ function contentStream(worksheet: Worksheet): string {
     ));
   }
 
-  const tracing = getWorksheetTraceLayout(worksheet);
-  if (worksheet.showTrace && worksheet.practiceMode !== "blank") {
+  if (worksheet.showTrace) {
     for (const row of tracing.rows) {
       for (const placement of row.placements) {
         commands.push(

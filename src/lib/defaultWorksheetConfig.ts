@@ -3,6 +3,9 @@ import type { WorksheetConfig } from "../types/worksheet";
 export const defaultWorksheetConfig: WorksheetConfig = {
   title: "My Handwriting Practice",
   practiceText: "Hello",
+  activityType: "text",
+  shapeId: "circle",
+  textMarks: [],
   paperSize: "letter",
   margin: 12.7,
   titleHeight: 20,

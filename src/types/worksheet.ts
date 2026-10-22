@@ -5,10 +5,26 @@ export type LetterForm = "simple" | "rounded";
 export type PromptStyle = "whole" | "letter-by-letter";
 export type PracticeMode = "trace" | "copy" | "fade" | "blank";
 export type WritingHand = "right" | "left";
+export type ActivityType = "text" | "shapes";
+export type ShapeId = "horizontal" | "vertical" | "wave" | "zigzag" | "circle" |
+  "square" | "triangle" | "spiral";
+export type HighlightTone = "yellow" | "mint" | "peach";
+/** Start and end are UTF-16 offsets into practiceText (as used by textarea.selectionStart). */
+export type TextMark = {
+  start: number;
+  end: number;
+  mode?: PracticeMode;
+  highlight?: HighlightTone;
+};
 
 export type WorksheetConfig = {
   title: string;
   practiceText: string;
+  /** Print either written text or vector prewriting shapes. */
+  activityType: ActivityType;
+  shapeId: ShapeId;
+  /** Editable ranges which repeat with the source text across wrapped practice blocks. */
+  textMarks: TextMark[];
   paperSize: PaperSize;
   margin: number;
   titleHeight: number;

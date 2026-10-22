@@ -45,24 +45,27 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] Automated regression tests; latest checked QA run passed 70/70 tests, lint, and build.
 - [ ] Merge QA branch into `main` after final review and optional physical-print verification.
 
-## Phase 3 — Worksheet library & visual practice tools
+## Phase 3 — Worksheet library & visual practice tools 🧪 Implemented, QA pending
 **Milestone:** Create targeted, adaptable handwriting and prewriting worksheets quickly.
 
-**Existing worksheet-library scope (preserved):**
-- [ ] Name-writing templates and sentence-copying pages.
-- [ ] Letter-formation progression and themed activities.
-- [ ] Shareable/exportable presets.
-- [ ] Reusable activity templates.
+**Activity library**
+- [x] Name-writing, sentence-copying, and fading examples.
+- [x] Letter-formation progressions (vowels, ascenders, descenders, alphabet pairs).
+- [x] Themed writing activities (ocean, space, garden).
+- [x] Reusable, editable activity template library grouped into four categories.
+- [x] Shareable/exportable worksheet presets via validated, versioned JSON files.
 
-**New scoped work — proposed branch `feature/visual-practice-tools`:**
-- [ ] **Prewriting shapes:** Include lines, circles, squares, triangles, and simple pathways as printable tracing/copy activities; keep shape measurements consistent between live SVG and vector PDF.
-- [ ] **Selective text highlighting:** Let the creator select individual words or text spans (e.g. highlight **cat** in “The cat is small”). Use readable, print-friendly highlighting that can be toggled/edited without changing the underlying phrase.
-- [ ] **Mixed practice supports on one worksheet:** Assign Trace, Copy, Fade, or Blank to different words/spans or writing rows (e.g. trace **cat**, copy the other words). Provide a clear editor and accurate preview/PDF output.
-- [ ] **Interaction rules:** Define what happens to selection/highlight/mixed-mode assignments when text wraps, repeats, is edited, or letter size/spacing changes.
-- [ ] **Saved configuration compatibility:** Ensure new shape, highlighting and mixed-support settings load safely from older saved worksheets and presets.
-- [ ] **QA:** Add wrapping/repetition, per-span/row style, printing, legibility, A4/Letter, and accessibility tests; perform hands-on visual and printer checks.
+**Visual practice tools (branch `feature/visual-practice-tools`)**
+- [x] Eight original vector prewriting paths: horizontal and vertical lines, waves, zigzags, circles, squares, triangles, and spirals.
+- [x] Shape tracing/copying/fading using the same preview/PDF geometry and sizing controls.
+- [x] Select portions of text in the editor to apply printable highlight colors (yellow, mint, peach).
+- [x] Apply per-selection Trace, Copy, Fade or Blank while retaining a worksheet-wide default.
+- [x] Preserve source text styles across wrapping, repeated multi-row phrases, and export; remove affected style ranges on edits rather than styling the wrong word.
+- [x] Save new options to local presets and portable JSON files; normalize older saved configurations safely.
+- [x] Automated tests for source-offset styles, vector shapes, layout behavior, PDF highlights, storage and import/export.
+- [ ] **Hands-on QA:** preview/PDF visual matching, print legibility, keyboard/text selection UX, selection edits, copied sentence blocks, smaller screens, and A4/Letter page sizing.
 
-Build and review the visual-practice tools independently of the broader worksheet-library features; avoid implementing everything in one oversized branch.
+**Design note:** Worksheet-wide Copy mode still presents one model block followed by blank rows. To repeat a sentence with *some words copied and others traced*, use worksheet-wide Trace and assign Copy to the chosen words. These are original educational tools; no clinical validation is claimed.
 
 ## Phase 4 — Interactive handwriting (research)
 **Milestone:** Investigate whether a stylus-enabled version benefits learners.

@@ -1,5 +1,9 @@
-import { useState } from "react";
-import type { WorksheetConfig, PracticeMode } from "../types/worksheet";
+import { useRef, useState } from "react";
+import type { WorksheetConfig, PracticeMode, HighlightTone } from "../types/worksheet";
+import { ACTIVITY_TEMPLATES, ACTIVITY_CATEGORIES, applyActivityTemplate,
+  type ActivityCategory } from "../lib/activityTemplates";
+import { PREWRITING_SHAPES } from "../lib/prewritingShapes";
+import { applyTextStyle, rebaseTextMarks } from "../lib/textMarks";
 import type { SavedWorksheetPreset } from "../lib/worksheetStorage";
 import { WORKSHEET_PRESETS } from "../lib/worksheetPresets";
 import {
@@ -21,6 +25,8 @@ type Props = {
   onLoadPreset: (id: string) => void;
   onDeletePreset: (id: string) => void;
   storageMessage: string;
+  onExportPreset: (name: string, config: WorksheetConfig) => void;
+  onImportPreset: (file: File) => Promise<void>;
 };
 
 type SliderFieldProps = {
@@ -92,11 +98,42 @@ const MODES: readonly { id: PracticeMode; label: string; description: string }[]
 
 function WorksheetSettings({
   config, availableRows, onChange, onReset, savedPresets, onSavePreset, onLoadPreset,
-  onDeletePreset, storageMessage,
+  onDeletePreset, storageMessage, onExportPreset, onImportPreset,
 }: Props) {
   const [presetName, setPresetName] = useState("");
+  const [category, setCategory] = useState<ActivityCategory>("Names & sentences");
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const importInput = useRef<HTMLInputElement>(null);
   function update(patch: Partial<WorksheetConfig>) {
     onChange({ ...config, ...patch });
+  }
+
+  function updatePracticeText(value: string) {
+    onChange({
+      ...config,
+      practiceText: value,
+      textMarks: rebaseTextMarks(config.textMarks, config.practiceText, value),
+    });
+    setSelection({ start: 0, end: 0 });
+  }
+
+  const selected = selection.end > selection.start &&
+    selection.end <= config.practiceText.length;
+  const selectedText = selected
+    ? config.practiceText.slice(selection.start, selection.end) : "";
+
+  function styleSelection(edit: {
+    mode?: PracticeMode | null;
+    highlight?: HighlightTone | null;
+  }) {
+    if (!selected) return;
+    update({
+      textMarks: applyTextStyle(
+        config.textMarks, config.practiceText.length,
+        selection.start, selection.end, edit
+      ),
+      showTrace: true,
+    });
   }
 
   const gap = getRowGap(config);
@@ -125,7 +162,9 @@ function WorksheetSettings({
                 className={"preset-chip" + (active ? " is-active" : "")}
                 aria-pressed={active}
                 onClick={() => update({
+                  activityType: "text",
                   title: preset.title, practiceText: preset.practiceText,
+                  textMarks: [],
                 })}>
                 {preset.label}
               </button>
@@ -139,24 +178,166 @@ function WorksheetSettings({
             onChange={(event) => update({ title: event.currentTarget.value })}
             placeholder="My Handwriting Practice" />
         </div>
-        <div className="text-field">
-          <label htmlFor="practice-text">Practice letters, words or phrase</label>
-          <textarea id="practice-text" rows={3} maxLength={120}
-            value={config.practiceText}
-            onChange={(event) => update({ practiceText: event.currentTarget.value })}
-            placeholder="Letters, words, or a short sentence..." />
-          <p className="field-help">
-            Edit freely; letter prompts and practice style can be adjusted below.
-          </p>
+        <div className="choice-field">
+          <label htmlFor="activity-type">Worksheet activity</label>
+          <select id="activity-type" value={config.activityType}
+            onChange={(event) => update({
+              activityType: event.currentTarget.value as WorksheetConfig["activityType"],
+              showTrace: true,
+            })}>
+            <option value="text">Letters, words and sentences</option>
+            <option value="shapes">Prewriting shapes and lines</option>
+          </select>
+        </div>
+
+        {config.activityType === "shapes" ? (
+          <div className="choice-field">
+            <label htmlFor="shape-selector">Choose a shape or path</label>
+            <select id="shape-selector" value={config.shapeId}
+              onChange={(event) => update({
+                shapeId: event.currentTarget.value as WorksheetConfig["shapeId"],
+              })}>
+              {Object.entries(PREWRITING_SHAPES).map(([id, shape]) => (
+                <option key={id} value={id}>{shape.label} — {shape.description}</option>
+              ))}
+            </select>
+            <p className="field-help">
+              Shape practice follows the same tracing, copying, fading and spacing
+              rules as handwriting. Preview and PDF use matching vector paths.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="text-field">
+              <label htmlFor="practice-text">Practice letters, words or phrase</label>
+              <textarea id="practice-text" rows={3} maxLength={120}
+                value={config.practiceText}
+                onChange={(event) => updatePracticeText(event.currentTarget.value)}
+                onSelect={(event) => setSelection({
+                  start: event.currentTarget.selectionStart,
+                  end: event.currentTarget.selectionEnd,
+                })}
+                placeholder="Letters, words, or a short sentence..." />
+              <p className="field-help">
+                Select a word or phrase in this box to highlight it or assign
+                a different tracing/copying level. Selections follow wrapped
+                and repeated text.
+              </p>
+            </div>
+            <div className="text-style-panel">
+              <strong className="text-style-heading">Customize selected text</strong>
+              <p className="selection-readout" aria-live="polite">
+                {selected
+                  ? "Selected: “" + selectedText.slice(0, 45) + "”"
+                  : "Select text above to enable these controls."}
+              </p>
+              <span className="style-toolbar-label">Highlight color</span>
+              <div className="text-style-actions">
+                {(["yellow", "mint", "peach"] as const).map((tone) => (
+                  <button key={tone} type="button" disabled={!selected}
+                    className={"highlight-action highlight-" + tone}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => styleSelection({ highlight: tone })}
+                    aria-label={"Highlight selected text " + tone}>
+                    {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                  </button>
+                ))}
+                <button type="button" disabled={!selected}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => styleSelection({ highlight: null })}>
+                  Remove color
+                </button>
+              </div>
+              <span className="style-toolbar-label">Practice mode for selection</span>
+              <div className="text-style-actions">
+                {(["trace", "copy", "fade", "blank"] as const).map((mode) => (
+                  <button key={mode} type="button" disabled={!selected}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => styleSelection({ mode })}>
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                ))}
+                <button type="button" disabled={!selected}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => styleSelection({ mode: null, highlight: null })}>
+                  Clear styles
+                </button>
+              </div>
+              {config.textMarks.length > 0 && (
+                <div className="text-style-mark-list">
+                  <span className="style-toolbar-label">Styled parts</span>
+                  {config.textMarks.map((mark, index) => (
+                    <div className="text-style-mark" key={index}>
+                      <span>
+                        “{config.practiceText.slice(mark.start, mark.end)}”
+                        <small>{mark.mode ?? "Default mode"}{mark.highlight
+                          ? " · " + mark.highlight : ""}</small>
+                      </span>
+                      <button type="button"
+                        aria-label={"Clear styling from " +
+                          config.practiceText.slice(mark.start, mark.end)}
+                        onClick={() => update({
+                          textMarks: applyTextStyle(
+                            config.textMarks, config.practiceText.length,
+                            mark.start, mark.end, { mode: null, highlight: null }
+                          ),
+                        })}>×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="field-help">
+                Editing styled words removes affected annotations rather than
+                accidentally attaching them to different words.
+              </p>
+            </div>
+          </>
+        )}
+      </details>
+
+      <details className="settings-section">
+        <summary className="section-label">
+          <span>02</span> ACTIVITY LIBRARY
+          <span className="section-caret" aria-hidden="true">⌄</span>
+        </summary>
+        <p className="field-help library-intro">
+          Ready-to-edit name writing, sentence copying, letter progressions,
+          themed prompts and prewriting shapes.
+        </p>
+        <div className="library-categories" role="group" aria-label="Activity category">
+          {ACTIVITY_CATEGORIES.map((option) => (
+            <button key={option} type="button"
+              className={category === option ? "is-active" : ""}
+              aria-pressed={category === option}
+              onClick={() => setCategory(option)}>{option}</button>
+          ))}
+        </div>
+        <div className="activity-list">
+          {ACTIVITY_TEMPLATES.filter((template) => template.category === category)
+            .map((template) => (
+              <button key={template.id} type="button"
+                onClick={() => {
+                  onChange(applyActivityTemplate(config, template));
+                  setSelection({ start: 0, end: 0 });
+                }}>
+                <strong>{template.label}</strong>
+                <small>{template.description}</small>
+                <span aria-hidden="true">↗</span>
+              </button>
+            ))}
         </div>
       </details>
 
       <details className="settings-section" open>
         <summary className="section-label">
-          <span>02</span> PRACTICE SUPPORT
+          <span>03</span> PRACTICE SUPPORT
           <span className="section-caret" aria-hidden="true">⌄</span>
         </summary>
-        <div className="preset-label">How should the student practice?</div>
+        <div className="preset-label">Default support for the worksheet</div>
+        <p className="field-help mode-intro">
+          This controls the overall pattern. For text activities, you can
+          override individual words using the selection tools above.
+        </p>
         <div className="mode-options" role="group" aria-label="Practice support mode">
           {MODES.map((mode) => (
             <button key={mode.id} type="button"
@@ -249,7 +430,7 @@ function WorksheetSettings({
 
       <details className="settings-section line-settings" open>
         <summary className="section-label">
-          <span>03</span> WRITING LINES
+          <span>04</span> WRITING LINES
           <span className="section-caret" aria-hidden="true">⌄</span>
         </summary>
         <div className="preset-label">Choose a writing size</div>
@@ -355,7 +536,7 @@ function WorksheetSettings({
 
       <details className="settings-section">
         <summary className="section-label">
-          <span>04</span> PAGE HEADER
+          <span>05</span> PAGE HEADER
           <span className="section-caret" aria-hidden="true">⌄</span>
         </summary>
         <label className="toggle-row" htmlFor="show-name">
@@ -386,7 +567,7 @@ function WorksheetSettings({
 
       <details className="settings-section">
         <summary className="section-label">
-          <span>05</span> MY SAVED SETUPS
+          <span>06</span> MY SAVED SETUPS
           <span className="section-caret" aria-hidden="true">⌄</span>
         </summary>
         <p className="field-help saved-intro">
@@ -419,12 +600,39 @@ function WorksheetSettings({
               <span title={preset.name}>{preset.name}</span>
               <button type="button" onClick={() => onLoadPreset(preset.id)}
                 aria-label={"Load " + preset.name}>Load</button>
+              <button type="button" onClick={() => onExportPreset(preset.name, preset.config)}
+                aria-label={"Export " + preset.name}>Export</button>
               <button type="button" className="delete-preset"
                 onClick={() => onDeletePreset(preset.id)}
                 aria-label={"Delete " + preset.name}>×</button>
             </div>
           ))}
         </div>
+        <div className="preset-transfer-actions">
+          <button type="button" onClick={() =>
+            onExportPreset(presetName.trim() || config.title || "My worksheet", config)}>
+            ↓ Export current worksheet (.json)
+          </button>
+          <button type="button" onClick={() => importInput.current?.click()}>
+            ↑ Import shared worksheet (.json)
+          </button>
+          <input
+            className="visually-hidden"
+            ref={importInput}
+            type="file"
+            accept=".json,application/json"
+            aria-label="Import a LineNook worksheet preset JSON file"
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0];
+              if (file) void onImportPreset(file);
+              event.currentTarget.value = "";
+            }}
+          />
+        </div>
+        <p className="field-help">
+          Share a JSON file with another LineNook user. Text highlights, mixed
+          practice modes, shapes and paper settings are included.
+        </p>
         {storageMessage && <p className="storage-message" role="status">{storageMessage}</p>}
       </details>
 

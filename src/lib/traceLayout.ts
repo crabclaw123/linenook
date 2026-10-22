@@ -107,34 +107,53 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
   const items = letterByLetter
     ? Array.from(text).filter((character) => !/\s/.test(character))
     : wrapTraceText(text, maxUnits, worksheet.letterForm, spacingUnits);
-  const repeating = !letterByLetter && items.length === 1;
   const copy = worksheet.practiceMode === "copy";
   const fade = worksheet.practiceMode === "fade";
-  // A long phrase flows onto only a few rows: grade the cues across THOSE
-  // rows rather than the entire page, while keeping every word readable.
-  // Repeated short phrases still fade all the way to blank practice.
-  const filledRowCount = Math.min(items.length, rows.length);
+  const reservedBlankRows = Math.min(
+    Math.max(0, Math.floor(worksheet.blankPracticeRows)),
+    Math.max(0, rows.length - 1)
+  );
+  const availableRowCount = rows.length - reservedBlankRows;
+  const blockLength = items.length;
+  const completeBlockFits = blockLength > 0 && blockLength <= availableRowCount;
+
+  // A phrase that wraps to two or more rows is one reusable practice block.
+  // Repeat ONLY complete blocks; never leave half a sentence at the page bottom.
+  // Copy mode deliberately shows one model block followed by independent rows.
+  // One-letter-per-row preserves its existing targeted, one-pass progression.
+  const blockCopies = !letterByLetter && !copy && completeBlockFits
+    ? Math.floor(availableRowCount / blockLength)
+    : 1;
+  const promptedRows = !letterByLetter && !copy && completeBlockFits
+    ? blockCopies * blockLength
+    : Math.min(blockLength, availableRowCount);
+
   function fadeOpacity(rowIndex: number): number {
-    if (repeating) return rowOpacity(rowIndex, rows.length);
-    return filledRowCount <= 1
-      ? 1
-      : 1 - 0.65 * rowIndex / (filledRowCount - 1);
+    if (!fade) return 1;
+    if (letterByLetter) return 1;
+    if (completeBlockFits && blockCopies > 1) {
+      // Each complete repetition has an equally legible internal letter model.
+      // The next repetition fades, progressing toward independent practice.
+      const repetition = Math.floor(rowIndex / blockLength);
+      return 1 - 0.75 * repetition / (blockCopies - 1);
+    }
+    // A single block (or an oversized phrase) grades across its visible rows.
+    const visibleInBlock = Math.min(blockLength, availableRowCount);
+    return visibleInBlock <= 1 ? 1 : 1 - 0.65 * rowIndex / (visibleInBlock - 1);
   }
 
   const traceRows = rows.map((row, rowIndex): TraceRow => {
-    const rowText = letterByLetter
-      ? (items[rowIndex] ?? "")
-      : (repeating ? items[0] : items[rowIndex]) ?? "";
-    if (!rowText || (copy && !letterByLetter && repeating && rowIndex > 0)) {
-      return { text: "", placements: [] };
-    }
-    if (fade && !letterByLetter && fadeOpacity(rowIndex) <= 0) {
+    if (rowIndex >= promptedRows || blockLength === 0) {
       return { text: "", placements: [] };
     }
 
+    const rowText = items[
+      letterByLetter || copy ? rowIndex : rowIndex % blockLength
+    ] ?? "";
+    if (!rowText) return { text: "", placements: [] };
+
     // Repeat individual letters only while the complete sequence fits.
-    // Account for the extra space characters between repeated letters as well
-    // as the user-selected character spacing, preventing right-edge clipping.
+    // Account for extra space characters and custom letter spacing.
     let copies = letterByLetter && !copy ? 5 : 1;
     let drawn = Array(copies).fill(rowText).join(letterByLetter ? " " : "");
     while (copies > 1 &&
@@ -145,15 +164,16 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
     const width = measureTraceText(drawn, worksheet.letterForm, spacingUnits) * scale;
     const referenceRight = copy && worksheet.writingHand === "left";
     let x = referenceRight ? right - width : left;
-    const opacity = fade && !letterByLetter
-      ? fadeOpacity(rowIndex)
-      : 1;
+    const opacity = fadeOpacity(rowIndex);
+    const characters = Array.from(drawn);
 
-    const placements: TracePlacement[] = Array.from(drawn).map((character, index) => {
+    const placements: TracePlacement[] = characters.map((character, index) => {
       const glyph = getHandwritingGlyph(character, worksheet.letterForm);
       const placement: TracePlacement = {
         glyph, x, y: row.top, scale,
-        opacity: fade && letterByLetter ? rowOpacity(index, Array.from(drawn).length) : opacity,
+        opacity: fade && letterByLetter
+          ? rowOpacity(index, characters.length)
+          : opacity,
         solid: copy,
       };
       x += (glyph.width + spacingUnits) * scale;
@@ -164,7 +184,10 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
 
   return {
     rows: traceRows,
-    overflow: items.length > rows.length && !(repeating && !letterByLetter),
+    // The full phrase must fit at least once within the usable writing rows.
+    // An incomplete repeated block at the end is intentional blank practice,
+    // not lost content or an overflow.
+    overflow: blockLength > availableRowCount,
     unsupportedCharacters,
   };
 }

@@ -23,10 +23,11 @@ describe("browser-local worksheet settings and named presets", () => {
   it("restores the current worksheet without a backend", () => {
     const storage = memoryStore();
     const config = { ...defaultWorksheetConfig, practiceText: "Occupational therapy",
-      showName: true, paperSize: "a4" as const, characterSpacing: 3.5 };
+      showName: true, paperSize: "a4" as const, characterSpacing: 3.5, blankPracticeRows: 3 };
     expect(persistCurrentConfig(config, storage)).toBe(true);
     expect(loadCurrentConfig(storage)).toMatchObject(config);
     expect(loadCurrentConfig(storage).characterSpacing).toBe(3.5);
+    expect(loadCurrentConfig(storage).blankPracticeRows).toBe(3);
   });
 
   it("restores safely from corrupted or outdated data", () => {
@@ -54,6 +55,14 @@ describe("browser-local worksheet settings and named presets", () => {
     const legacy = { ...defaultWorksheetConfig } as Record<string, unknown>;
     delete legacy.characterSpacing;
     expect(normalizeWorksheetConfig(legacy).characterSpacing).toBe(0);
+    delete legacy.blankPracticeRows;
+    expect(normalizeWorksheetConfig(legacy).blankPracticeRows).toBe(0);
+    expect(normalizeWorksheetConfig({
+      ...defaultWorksheetConfig, blankPracticeRows: -2,
+    }).blankPracticeRows).toBe(0);
+    expect(normalizeWorksheetConfig({
+      ...defaultWorksheetConfig, blankPracticeRows: 60,
+    }).blankPracticeRows).toBe(30);
   });
 
   it("saves and loads named worksheet presets", () => {

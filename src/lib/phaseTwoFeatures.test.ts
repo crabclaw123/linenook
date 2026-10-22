@@ -82,7 +82,7 @@ describe("Phase 2 handwriting and worksheet options", () => {
     expect(out.rows[0].placements[0].opacity).toBe(1);
     expect(out.rows[1].placements[0].opacity).toBeLessThan(1);
     expect(out.rows[1].placements[0].opacity).toBeGreaterThan(0);
-    expect(out.rows.at(-1)!.placements).toHaveLength(0);
+    expect(out.rows.at(-1)!.placements[0].opacity).toBeCloseTo(0.25);
     expect(tracedColor(0)).toBe("#ffffff");
     expect(tracedColor(1)).toBe("#506b65");
   });
@@ -97,7 +97,7 @@ describe("Phase 2 handwriting and worksheet options", () => {
     expect(getHandwritingGlyph("B", "rounded")).toBe(getHandwritingGlyph("B"));
   });
 
-  it("fades substantially across only the filled rows of long text", () => {
+  it("fades complete repeated phrases across repetitions, not midway through words", () => {
     const content = ["Alpha", "Bravo", "Charlie"].join(String.fromCharCode(10));
     const traced = getWorksheetTraceLayout(worksheet({
       practiceText: content, practiceMode: "trace",
@@ -105,13 +105,14 @@ describe("Phase 2 handwriting and worksheet options", () => {
     const faded = getWorksheetTraceLayout(worksheet({
       practiceText: content, practiceMode: "fade",
     }));
-    expect(traced.rows[0].placements[0].opacity).toBe(1);
-    expect(traced.rows[1].placements[0].opacity).toBe(1);
-    expect(traced.rows[2].placements[0].opacity).toBe(1);
-    expect(faded.rows[0].placements[0].opacity).toBe(1);
-    expect(faded.rows[1].placements[0].opacity).toBeCloseTo(0.675);
-    expect(faded.rows[2].placements[0].opacity).toBeCloseTo(0.35);
-    expect(faded.rows[2].placements.length).toBeGreaterThan(0);
+    for (let row = 0; row < 9; row++) {
+      expect(faded.rows[row].text).toBe(traced.rows[row].text);
+      expect(traced.rows[row].placements[0].opacity).toBe(1);
+      expect(faded.rows[row].placements[0].opacity).toBeCloseTo(
+        1 - 0.75 * Math.floor(row / 3) / 2
+      );
+    }
+    expect(faded.rows[8].placements[0].opacity).toBeCloseTo(0.25);
   });
 
   it("gives lowercase y a cleaner two-stroke descent without a reverse zigzag", () => {

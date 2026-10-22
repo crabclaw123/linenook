@@ -28,6 +28,8 @@ export type WorksheetConfig = {
   writingHand: WritingHand;
   /** Extra space between adjacent characters, in physical millimeters. */
   characterSpacing: number;
+  /** Number of writing rows reserved at the bottom for independent practice. */
+  blankPracticeRows: number;
   showName: boolean;
   showDate: boolean;
 };

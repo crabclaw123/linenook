@@ -120,6 +120,7 @@ function App() {
             </div>
             <WorksheetSettings
               config={config}
+              availableRows={worksheet.layout.rows.length}
               onChange={setConfig}
               onReset={() => setConfig({ ...defaultWorksheetConfig })}
               savedPresets={savedPresets}
@@ -147,8 +148,8 @@ function App() {
 
             {tracing.overflow && config.practiceMode !== "blank" && (
               <p className="worksheet-warning" role="status">
-                Your practice text needs more rows than fit on this page. Shorten
-                it, choose smaller writing lines, or change the prompt style.
+                The full phrase does not fit in the available writing rows.
+                Try fewer reserved blank rows, smaller writing lines, or shorter text.
               </p>
             )}
             {tracing.unsupportedCharacters.length > 0 &&

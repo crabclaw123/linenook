@@ -75,6 +75,7 @@ export function normalizeWorksheetConfig(data: unknown): WorksheetConfig {
       ["trace", "copy", "fade", "blank"], defaults.practiceMode),
     writingHand: select(saved.writingHand, ["right", "left"], defaults.writingHand),
     characterSpacing: finiteInRange(saved.characterSpacing, defaults.characterSpacing, 0, 8),
+    blankPracticeRows: Math.floor(finiteInRange(saved.blankPracticeRows, defaults.blankPracticeRows, 0, 30)),
     showName: typeof saved.showName === "boolean" ? saved.showName : defaults.showName,
     showDate: typeof saved.showDate === "boolean" ? saved.showDate : defaults.showDate,
   };

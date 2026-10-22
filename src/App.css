@@ -372,3 +372,61 @@
 @media (max-width: 400px) {
   .mode-options { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+/*
+ * Desktop studio: both columns stay visible while the settings scroll in
+ * their own pane. Keep the paper scaled to the viewport so the sheet doesn't
+ * disappear under the browser edge. Printing uses the unscaled SVG below.
+ */
+@media screen and (min-width: 991px) {
+  .settings-panel, .preview-panel {
+    position: sticky;
+    top: 14px;
+    max-height: calc(100vh - 28px);
+    max-height: calc(100dvh - 28px);
+  }
+  .settings-panel {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 28px);
+    height: calc(100dvh - 28px);
+  }
+  .panel-heading { flex: 0 0 auto; }
+  .settings-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #b8d1bf transparent;
+  }
+  .preview-panel { display: flex; flex-direction: column; }
+  .preview-heading, .export-actions, .preview-footer { flex: 0 0 auto; }
+  .preview-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: center;
+    overflow: auto;
+    scrollbar-width: thin;
+  }
+  .paper-frame {
+    flex: 0 0 auto;
+    width: min(100%, 530px, calc((100dvh - 300px) * 0.69));
+  }
+  .preview-footer { margin-top: 14px; }
+}
+
+.blank-practice-control { margin: 0 0 24px; }
+.blank-practice-control input[type="range"] {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin: 9px 0 8px;
+  cursor: pointer;
+  accent-color: #3d8a6d;
+}
+.blank-practice-control input:disabled { opacity: 0.5; cursor: not-allowed; }
+.blank-practice-control .field-topline { align-items: center; }
+.blank-practice-control .field-topline label { margin-bottom: 3px; }
+.blank-practice-control .field-topline output { margin-bottom: 3px; }

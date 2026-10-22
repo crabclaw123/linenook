@@ -25,7 +25,7 @@ Open the local Vite URL shown in your terminal.
 6. Under **My saved setups**, save a named configuration and reload it later. Current settings also restore automatically in the same browser. The 20 most recently saved setups are stored locally; these do **not** sync across devices.
 7. Export **Download PDF** (vector) or **Print worksheet** (browser printing). All changes update the preview live.
 
-Short phrases repeat, except in Copy mode (where later rows are blank). Longer text wraps. Letter-by-letter prompts use one row per character. Text that exceeds the page's capacity gets an on-screen warning.
+Whole phrases repeat across the sheet in Trace and Fade modes, **including phrases that wrap across two or more rows**. Each complete wrapped phrase is a repeating block; incomplete blocks are never started at the bottom. Use **Blank rows for independent practice** to reserve a chosen number of rows beneath the models; any extra row too short for a full block also remains blank. Copy mode shows one complete model (even when it wraps), then blank practice rows. Letter-by-letter prompts use one row per character. Text that cannot fit once in the available rows triggers an on-screen warning.
 
 ## Printing
 
@@ -33,7 +33,7 @@ Choose the corresponding physical paper size, **Actual size / 100%**, and disabl
 
 ## Technical design
 
-- React + SVG for responsive interactive preview.
+- React + SVG for responsive interactive preview. On desktop, the settings scroll independently beside a sticky, viewport-fit paper preview; smaller screens retain the normal stacked layout.
 - Pure TypeScript millimeter-based layout and line-gap calculations.
 - Shared geometry for guideline styles, optional header labels, tracing glyph placement and coloring in SVG and PDF.
 - Dependency-free one-page vector PDF writer (no raster screenshot export).

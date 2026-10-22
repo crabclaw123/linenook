@@ -43,6 +43,15 @@ Latest verified Phase 2 CI: [GitHub Actions — passing run](https://github.com/
 - **Spacing:** User-adjustable **extra character spacing from 0–8 mm**; added physical spacing is consistent in text measurement, wrapping, SVG preview, PDF, and saved setups.
 - **Reusable settings:** Automatic local draft restoration and up to 20 named, browser-local presets, including save/load/delete.
 
+## QA bug cleanup — branch `qa/bug-cleanup-1`
+
+- **Repeating long sentences:** Whole-phrase Trace and Fade now repeat the entire wrapped text block on subsequent writing rows, not only single-row phrases. A partial second copy is never printed; leftover rows stay blank.
+- **Independent blank-line choice:** Added an integer `blankPracticeRows` setting that reserves space below models for independent practice. It appears under Practice Support, persists with current settings/named setups, and is bounded by the available row count.
+- **Copy compatibility:** In Copy mode, a multi-line model is displayed once and then followed by blank writing rows.
+- **Fade compatibility:** Opacity decreases by **complete phrase repetition** so both rows of a wrapped sentence stay equally readable within a given repetition.
+- **Always-visible desktop preview:** A desktop split workspace uses an independently scrollable settings pane and sticky, viewport-fitted worksheet preview. Mobile/tablet keep the ordinary stacked layout.
+- **QA to perform:** On desktop, scroll to the bottom of the settings panel while viewing the live sheet and verify print remains the full-size original; test 1-line, 2-line, and 3-line phrases, reserved blank-row counts, Fade and Copy, plus A4 and saved presets.
+
 ## QA evidence and outstanding release checks
 
 **Completed / observed**

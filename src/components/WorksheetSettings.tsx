@@ -13,6 +13,7 @@ import {
 
 type Props = {
   config: WorksheetConfig;
+  availableRows: number;
   onChange: (config: WorksheetConfig) => void;
   onReset: () => void;
   savedPresets: readonly SavedWorksheetPreset[];
@@ -83,14 +84,14 @@ function ChoiceField<T extends string>({
 }
 
 const MODES: readonly { id: PracticeMode; label: string; description: string }[] = [
-  { id: "trace", label: "Trace", description: "Dotted guides for repeated tracing." },
+  { id: "trace", label: "Trace", description: "Repeat the whole phrase, including wrapped lines, throughout the available rows." },
   { id: "copy", label: "Copy", description: "A solid model with room to copy below." },
-  { id: "fade", label: "Fade", description: "Letters lighten down the page. Short phrases fade to blank rows; longer text lightens across its filled rows." },
+  { id: "fade", label: "Fade", description: "Repeat the same complete phrase with progressively lighter letters. Reserve blank rows below for independent practice." },
   { id: "blank", label: "Blank", description: "Just the guidelines, with no letter prompts." },
 ];
 
 function WorksheetSettings({
-  config, onChange, onReset, savedPresets, onSavePreset, onLoadPreset,
+  config, availableRows, onChange, onReset, savedPresets, onSavePreset, onLoadPreset,
   onDeletePreset, storageMessage,
 }: Props) {
   const [presetName, setPresetName] = useState("");
@@ -99,6 +100,10 @@ function WorksheetSettings({
   }
 
   const gap = getRowGap(config);
+  // Keep at least one row available for an example; Blank mode is available
+  // when the entire page should have no tracing.
+  const maxBlankRows = Math.max(0, availableRows - 1);
+  const visibleBlankRows = Math.min(config.blankPracticeRows, maxBlankRows);
   const activeSize = LINE_SIZE_PRESETS.find(
     (preset) => preset.writingHeight === config.writingHeight && preset.gap === gap
   );
@@ -178,9 +183,38 @@ function WorksheetSettings({
           ]}
           help={config.promptStyle === "letter-by-letter"
             ? "Each character receives its own row. Trace and Fade repeat that letter along the line."
-            : "Short phrases repeat; longer ones wrap down the page."}
+            : "Entire phrases repeat, even when they wrap across multiple rows."}
           onChange={(promptStyle) => update({ promptStyle })}
         />
+
+        <div className="blank-practice-control">
+          <div className="field-topline">
+            <label htmlFor="blank-practice-rows">Blank rows for independent practice</label>
+            <output htmlFor="blank-practice-rows">
+              {visibleBlankRows} {visibleBlankRows === 1 ? "row" : "rows"}
+            </output>
+          </div>
+          <input
+            id="blank-practice-rows"
+            type="range"
+            min={0}
+            max={maxBlankRows}
+            step={1}
+            value={visibleBlankRows}
+            disabled={config.practiceMode === "blank" || maxBlankRows === 0}
+            onChange={(event) => update({
+              blankPracticeRows: Number(event.currentTarget.value),
+            })}
+          />
+          <p className="field-help">
+            {config.promptStyle === "letter-by-letter"
+              ? "Keep these rows blank at the bottom for independent letter practice."
+              : "Complete phrases repeat above these blank rows. If another full phrase won't fit, the remaining row stays blank too."}
+            {config.practiceMode === "copy"
+              ? " Copy mode already leaves rows blank after the model." : ""}
+          </p>
+        </div>
+
         <ChoiceField
           id="letter-case" label="Letter case"
           value={config.letterCase}

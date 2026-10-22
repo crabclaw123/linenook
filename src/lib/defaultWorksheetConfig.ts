@@ -18,6 +18,7 @@ export const defaultWorksheetConfig: WorksheetConfig = {
   practiceMode: "trace",
   writingHand: "right",
   characterSpacing: 0,
+  blankPracticeRows: 0,
   showName: false,
   showDate: false,
 };

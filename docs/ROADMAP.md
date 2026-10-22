@@ -33,15 +33,36 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] New automated tests for modes, layouts, guide styles, storage, and PDF features
 - [ ] **Hands-on QA** of PDF, physical print, tracing readability, left-handed layouts, A4 paper selection and assistive labeling
 
-## Phase 3 — Worksheet library
-**Milestone:** Create targeted worksheets in under a minute.
+## QA stabilization — Worksheet repetition and preview layout ✅ Implemented, user-reviewed (merge pending)
+**Branch:** `qa/bug-cleanup-1` (not yet merged into `main`).
 
-- [ ] Name-writing templates and sentence-copying pages
-- [ ] Letter formation progression and themed activities
-- [ ] Shareable/exportable presets
-- [ ] Reusable activity templates
-- [ ] Option to highlight chosen parts of worksheet (e.g, "The cat is small", being able to highlight "cat")
-- [ ] Combining trace, copy, fade on one worksheet (e.g., "the cat is small" copy "the, is, and small" trace cat)
+- [x] Repeat an entire sentence/phrase as a complete practice block, even when it wraps over multiple writing rows.
+- [x] Never start a partial repetition at the end of a page; leave remaining rows blank.
+- [x] Optional number of reserved blank writing rows for independent practice; saved with the worksheet.
+- [x] Copy mode keeps one complete exemplar block; Fade grades repeated complete blocks.
+- [x] Independently scrollable desktop settings with an always-visible live worksheet preview.
+- [x] Rebalance the desktop columns to favor a larger worksheet preview without changing printed or PDF dimensions.
+- [x] Automated regression tests; latest checked QA run passed 70/70 tests, lint, and build.
+- [ ] Merge QA branch into `main` after final review and optional physical-print verification.
+
+## Phase 3 — Worksheet library & visual practice tools
+**Milestone:** Create targeted, adaptable handwriting and prewriting worksheets quickly.
+
+**Existing worksheet-library scope (preserved):**
+- [ ] Name-writing templates and sentence-copying pages.
+- [ ] Letter-formation progression and themed activities.
+- [ ] Shareable/exportable presets.
+- [ ] Reusable activity templates.
+
+**New scoped work — proposed branch `feature/visual-practice-tools`:**
+- [ ] **Prewriting shapes:** Include lines, circles, squares, triangles, and simple pathways as printable tracing/copy activities; keep shape measurements consistent between live SVG and vector PDF.
+- [ ] **Selective text highlighting:** Let the creator select individual words or text spans (e.g. highlight **cat** in “The cat is small”). Use readable, print-friendly highlighting that can be toggled/edited without changing the underlying phrase.
+- [ ] **Mixed practice supports on one worksheet:** Assign Trace, Copy, Fade, or Blank to different words/spans or writing rows (e.g. trace **cat**, copy the other words). Provide a clear editor and accurate preview/PDF output.
+- [ ] **Interaction rules:** Define what happens to selection/highlight/mixed-mode assignments when text wraps, repeats, is edited, or letter size/spacing changes.
+- [ ] **Saved configuration compatibility:** Ensure new shape, highlighting and mixed-support settings load safely from older saved worksheets and presets.
+- [ ] **QA:** Add wrapping/repetition, per-span/row style, printing, legibility, A4/Letter, and accessibility tests; perform hands-on visual and printer checks.
+
+Build and review the visual-practice tools independently of the broader worksheet-library features; avoid implementing everything in one oversized branch.
 
 ## Phase 4 — Interactive handwriting (research)
 **Milestone:** Investigate whether a stylus-enabled version benefits learners.

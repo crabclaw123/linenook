@@ -1,98 +1,73 @@
 # LineNook — Project Status
 
 **Updated:** October 21, 2026  
-**Product:** Browser-based studio for creating printable handwriting practice worksheets for occupational therapists, educators, and families.
+**Product:** Browser-based, customizable printable handwriting and prewriting worksheet studio for occupational therapists, teachers, and families.
 
-## Current snapshot
+## Development snapshot
 
-**Phase 1:** Merged into `main`. The roadmap marks its initial hands-on print QA complete.  
-**Phase 2:** Implemented on `feature/phase-2-worksheet-enhancements`; the user has visually reviewed the updated interface and Fade experience positively. **Final Phase 2 hands-on QA and release review remain open.**  
-**Phase 3:** Not started; existing plan is the worksheet activity library.
+| Workstream | Status | Branch |
+| --- | --- | --- |
+| Phase 1 — Printable worksheet studio | Merged into `main` | `main` |
+| Phase 2 — Clinical/educational customization | Merged into `main`; additional clinical and print review may still be needed | `main` |
+| QA — Repeated wrapped phrases and desktop preview | Implemented, screenshot-reviewed; **not yet merged** | `qa/bug-cleanup-1` |
+| Phase 3 — Worksheet library | Planned; not implemented | Future feature branches |
+| Phase 3 — Shapes, highlighting, mixed practice supports | Newly scoped; **not implemented** | Proposed `feature/visual-practice-tools` |
 
-Latest verified Phase 2 CI: [GitHub Actions — passing run](https://github.com/crabclaw123/linenook/actions/runs/39360921115) on commit `20452db` — **62/62 unit tests passing**, ESLint passing, and production build passing. Tests establish technical behavior, not clinical effectiveness or physical print fidelity.
+**Last verified QA checks:** [GitHub Actions — `c80647c`](https://github.com/crabclaw123/linenook/actions/runs/39699402088), **70 tests passed in 13 test files**, lint passed, and production build passed. Passing automated checks and positive screenshots do not establish physical-print fidelity or clinical validation.
 
-## Technology and architecture
+## Technology
 
-- **Frontend:** React, TypeScript, Vite, CSS, SVG.
-- **Testing:** Vitest, ESLint, TypeScript build; GitHub Actions checks feature-branch pushes and PRs to `main`.
-- **Layout:** Shared millimeter-based page geometry, writing-row positions, tracing placements, and guideline styles across SVG preview and exported PDF.
-- **Export:** One-page, dependency-free vector PDF plus browser print view.
-- **Persistence:** Browser `localStorage`; no accounts, database, backend, or cloud synchronization.
+React + TypeScript + Vite, SVG live preview, Vitest, ESLint, one-page dependency-free vector PDF writer and browser print CSS. Geometry and tracing calculations use physical millimeters. Local settings and up to 20 named presets are stored in the browser; there is no backend or cloud sync.
 
-## Delivered functionality
+## Already implemented — Phases 1 and 2 (`main`)
 
-### Phase 1 — Printable worksheet studio
+- Worksheet title and practice text editor with reusable starter templates, immediate SVG preview, and PDF/download and print actions.
+- Writing-line size presets; row spacing and descender clearance; margin, optional baseline highlight, and even page-height distribution controls.
+- Dotted original manuscript glyphs with selective alternate letterforms, case transformations, configurable character spacing (0–8 mm), and row overflow warnings.
+- US Letter/A4 paper sizes, several guide-line styles and colors, optional Name/Date fields.
+- Four worksheet-wide practice modes — Trace, Copy, Fade and Blank — plus one-letter-per-row prompts and left-handed Copy reference positioning.
+- Local draft restoration and named presets; no account required.
 
-- Responsive two-panel editor, immediate US Letter live preview, and editable worksheet title/practice text.
-- Writing-size presets (Compact / Everyday / Extra room) and linked writing-height + row-gap controls that reserve space for descenders.
-- Page-margin controls and optional distribution of unused vertical space between rows without distorting writing height.
-- Original monoline uppercase/lowercase letters, digits, and punctuation rendered as dotted tracing; blank-line alternative.
-- Basic content templates, text wrapping, overflow and unsupported-symbol warnings.
-- Matching PDF download and printable worksheet view.
+These modes are **worksheet-wide** in Phase 2. Per-word, per-span and per-row mixing is a **planned Phase 3 feature**, not a current capability.
 
-### Phase 2 — Clinical and educational customization (implemented; QA ongoing)
+## QA improvements implemented — `qa/bug-cleanup-1` (merge pending)
 
-- **Guidelines:** Classic top/middle/baseline, colored top/middle/baseline cues, double-line, and baseline-only styles; optional warm baseline emphasis.
-- **Graded practice:** Trace, Copy (solid reference with blank writing rows), Fade (progressively lighter prompts), and Blank.
-- **Fade refinement:** Repeated short prompts fade toward independent blank rows; longer content now lightens across the *rows that actually contain text*, making the difference from Trace visible.
-- **Text options:** Whole-phrase or one-letter-per-row prompts; uppercase/lowercase/as-typed choices; original simple manuscript and alternate rounded forms for selected characters.
-- **Letterform refinement:** Improved several prototype glyphs, including a revised two-stroke lowercase **y** descender flagged during screenshot QA.
-- **Handedness:** Left-handed Copy mode positions the exemplar to the right to reduce potential hand obstruction.
-- **Paper:** US Letter and A4 geometry for live preview, PDF export, and print.
-- **Header:** Optional **Name** and **Date** fields with dedicated vertical space above the first writing row.
-- **Spacing:** User-adjustable **extra character spacing from 0–8 mm**; added physical spacing is consistent in text measurement, wrapping, SVG preview, PDF, and saved setups.
-- **Reusable settings:** Automatic local draft restoration and up to 20 named, browser-local presets, including save/load/delete.
+1. **Complete-phrase repetition:** Previously, phrases only repeated when they fit on a single writing line. Trace and Fade now repeat **whole multi-row blocks**, never partially repeating a sentence at the bottom of a page.
+2. **Independent practice space:** A new `blankPracticeRows` control reserves writing rows below the model. Settings and saved presets retain the choice.
+3. **Practice-mode behavior:** Copy provides one complete wrapped exemplar followed by independent rows; Fade reduces visual guidance across complete repetitions rather than unevenly fading lines within the same copy.
+4. **Desktop layout:** The left controls scroll independently, keeping the preview visible. Subsequent layout adjustments reduced the settings column from 402 px to 342 px, enlarged the worksheet preview and trimmed unnecessary padding. Narrow/mobile layouts remain stacked; SVG print/PDF geometry is unchanged.
+5. **Regression coverage:** New wrapping, repetition, blank-row, Fade, Copy and PDF-output tests; latest CI passed **70/70** tests, ESLint and build.
 
-## QA bug cleanup — branch `qa/bug-cleanup-1`
+**Observed QA:** The user provided screenshots demonstrating full 3-line phrase repetitions, name/date headers and independent scrolling, and approved the revised worksheet/editor proportions. This is browser-based visual feedback, not documented physical-print testing.
 
-- **Repeating long sentences:** Whole-phrase Trace and Fade now repeat the entire wrapped text block on subsequent writing rows, not only single-row phrases. A partial second copy is never printed; leftover rows stay blank.
-- **Independent blank-line choice:** Added an integer `blankPracticeRows` setting that reserves space below models for independent practice. It appears under Practice Support, persists with current settings/named setups, and is bounded by the available row count.
-- **Copy compatibility:** In Copy mode, a multi-line model is displayed once and then followed by blank writing rows.
-- **Fade compatibility:** Opacity decreases by **complete phrase repetition** so both rows of a wrapped sentence stay equally readable within a given repetition.
-- **Always-visible desktop preview:** A desktop split workspace uses an independently scrollable settings pane and sticky, viewport-fitted worksheet preview. Mobile/tablet keep the ordinary stacked layout.
-- **QA to perform:** On desktop, scroll to the bottom of the settings panel while viewing the live sheet and verify print remains the full-size original; test 1-line, 2-line, and 3-line phrases, reserved blank-row counts, Fade and Copy, plus A4 and saved presets.
+**Before merging QA:** Verify that independent panel scrolling is comfortable at short/tall desktop heights; ensure the complete phrase repeats with chosen blank rows, no clipping in A4/Letter PDFs, and desktop changes do not alter the printed sheet.
 
-## Desktop preview balance — QA follow-up
+## Planned next: shapes, selective highlighting and mixed supports
 
-- The desktop editor now gives more horizontal space to the worksheet by reducing the settings column from 402 px to 342 px and trimming desktop-only preview padding.
-- The prior overly restrictive preview width cap was replaced with a viewport-aware, larger paper width; settings still scroll independently, while the preview can scroll on shorter displays.
-- SVG page measurements, PDF export, and the `@media print` stylesheet are unchanged. The narrow-screen stacked layout is preserved.
-- **Visual QA still required:** confirm the whole worksheet remains comfortably readable at typical desktop heights, the paper is accessible on shorter windows, and all settings remain reachable without scrolling the page away from the preview.
+**Recommended feature branch:** `feature/visual-practice-tools` — create **from updated `main` after merging `qa/bug-cleanup-1`**.
 
-## QA evidence and outstanding release checks
+- **Prewriting shapes:** Provide a starter selection of paths (straight/curved lines, circles, squares, triangles, simple pathways), with Trace/Copy options and writing-area placement appropriate to printable activities. Shape paths should be reused by SVG preview and PDF.
+- **Highlight selected text:** Allow an author to highlight individual words or character ranges (e.g. “The **cat** is small”), with adjustable, accessible print-friendly cues that do not alter the underlying text.
+- **Mix practice levels within one page:** Support combinations of Trace, Copy, Fade and blank independent practice across chosen words/text spans and/or rows. Provide obvious controls so users can see exactly what each student will receive.
+- **Data/layout design first:** Decide how selections and per-item support are represented in a structured worksheet model, survive edits, line wrapping and full-phrase repetition, and are faithfully serialized in browser presets.
+- **QA and acceptance:** Test matching preview and PDF, repeated phrases with mixed-mode segments, highlights on wrapped text, letter spacing, A4/Letter printing, and keyboard-accessible authoring controls. Clinically review whether each support cue communicates its intended task.
 
-**Completed / observed**
-- Automated suite: **62 tests in 12 files**, all passing at the last verified run; lint and build passed.
-- User screenshots showed correct rendering of an alphabet sample, guideline styling, and Fade progression for `HELLO`; user approved the latest visual direction.
-- Specific screenshot-reported defects were addressed: awkward lowercase **y**, Fade being barely distinguishable with long content, and a need for wider character spacing.
-- The [roadmap](ROADMAP.md) currently marks Phase 1 print QA and an internal clinician letterform review/sign-off item checked. **No standardized-curriculum certification or independently documented clinical validation is implied by those checkboxes.**
+**Scope separation:** The existing Phase 3 **worksheet library** plan remains intact: name-writing and sentence-copying activities, letter-formation progressions, themed activities, shareable/exportable presets and reusable templates. The visual-practice tools are a **focused Phase 3 workstream**, not a replacement for that library.
 
-**Still to verify before merging Phase 2 into `main`**
-1. Inspect newly revised lowercase **y**, plus **g, j, p, q** and every alternate manuscript letterform, at the actual printed writing size.
-2. Exercise 0, 3, 6, and 8 mm character spacing with short and long phrases; check legibility, wrap behavior, and that no text clips.
-3. Compare Trace vs Fade using `Hello`, `HELLO`, and longer alphabet/sentence content; determine whether grading of long, nonrepeating text meets the intended OT use case.
-4. Check Copy for right-/left-handed settings, whole-phrase and letter-by-letter modes, and preservation of usable blank writing space.
-5. Compare **PDF to browser preview** for all guideline styles, colored baselines, Name/Date headers, and Letter/A4 sizes; physically print at **100% / Actual size** with matching paper and browser headers/footers disabled.
-6. Verify saved setups (create, replace, load, delete, reload), mobile layout, overflow warnings, and blocked/unavailable browser storage.
+## Open issues / limitations
 
-## Product decisions and open questions
+- Prototype manuscript letterforms are **not certified or independently validated** against any standardized handwriting curriculum; evaluate letter formation and stroke direction clinically.
+- No automatic multipage PDF export.
+- Some Unicode characters/diacritics are unsupported in tracing and replaced with `?`; PDF title uses a basic built-in font.
+- Browser-only presets can disappear if local storage is cleared and do not synchronize across devices.
+- Printer margins, scaling and colors vary. Print at **Actual Size / 100%** on the corresponding paper type for physical QA.
+- The existing Fade/Copy treatment rules are design decisions, not validated therapy protocols.
 
-- The Phase 2 interface and its controls are sufficiently established to prioritize **clinical usability, physical print quality, and handwriting mechanics** over adding more UI features.
-- The current Fade implementation removes visual information rather than reducing letter size or guideline height. An optional future intensity control (**gentle / moderate / strong**) could improve grading.
-- **Long-text Fade needs instructional review:** fading different portions of a sentence is not the same as practicing and gradually fading *the same* motor sequence. Repeated-target fading could become a later enhancement.
-- Review whether 8 mm maximum extra character spacing is useful or whether a tighter range better serves typical intervention activities.
+## Next steps
 
-## Known limitations
+1. Finish QA review and merge `qa/bug-cleanup-1` into `main`.
+2. Update the local `main` branch after the merge; create `feature/visual-practice-tools` from that merged baseline.
+3. Design the mixed-content worksheet data model before building the editor controls; implement shapes and highlights with shared SVG/PDF rendering and tests.
+4. Retain the other Phase 3 worksheet-library items in the roadmap for subsequent focused branches.
 
-- Only **one-page PDF export**; no multipage output.
-- LineNook glyphs are **original prototype teaching shapes**, not a standardized, licensed, or independently validated handwriting curriculum. Clinical review of formation conventions should continue.
-- Some Unicode characters/diacritics are not supported in tracing and become `?` with a visible warning; PDF titles use built-in Helvetica with basic transliteration.
-- Browser-only saved data may disappear if local site storage is cleared and does not sync between devices.
-- Letter-by-letter mode uses one row per target letter; extra targets generate an overflow warning.
-- Physical results vary with printer margins, scaling, and color settings.
-
-## Next milestone
-
-Finish the Phase 2 QA checklist, document any fixes, and open a PR from `feature/phase-2-worksheet-enhancements` to `main` after review. **Do not treat Phase 2 as merged or production/clinically validated yet.**
-
-Phase 3 scope remains as defined in [ROADMAP.md](ROADMAP.md): name-writing and sentence-copying activities, letter-formation progressions, themed activities, shareable/exportable presets, and reusable activity templates.
+See [ROADMAP.md](ROADMAP.md) for the complete phase-by-phase checklist.

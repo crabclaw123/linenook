@@ -33,6 +33,7 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] New automated tests for modes, layouts, guide styles, storage, and PDF features
 - [ ] Ability to choose multiple shapes for one worksheet
 - [ ] Ability to mix and match shapes, letters, numbers, etc on one worksheet
+  - **Newly requested:** Both are future mixed-content enhancements, not part of the implemented single-shape/single-text Phase 3 editor. See the Phase 3 follow-up plan below.
 - [ ] **Hands-on QA** of PDF, physical print, tracing readability, left-handed layouts, A4 paper selection and assistive labeling
 
 ## QA stabilization — Worksheet repetition and preview layout ✅ Implemented, user-reviewed (merge pending)
@@ -68,6 +69,14 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [ ] **Hands-on QA:** preview/PDF visual matching, print legibility, keyboard/text selection UX, selection edits, copied sentence blocks, smaller screens, and A4/Letter page sizing.
 
 **Design note:** Worksheet-wide Copy mode still presents one model block followed by blank rows. To repeat a sentence with *some words copied and others traced*, use worksheet-wide Trace and assign Copy to the chosen words. These are original educational tools; no clinical validation is claimed.
+
+**Phase 3 follow-up — mixed shapes and handwriting (new request; not implemented)**
+- [ ] Let worksheet authors choose a **sequence of different shapes**, rather than just one shape repeated across the page (e.g., circle → square → triangle).
+- [ ] Let worksheet authors **combine shapes, letters, numbers, words, and blank rows within one printable worksheet**.
+- [ ] Design an ordered, editable activity-block model with per-block content, style and Trace/Copy/Fade/Blank support. Preserve existing text-specific highlighting and mixed modes.
+- [ ] Add intuitive add/reorder/remove controls; make row allocation, wrapped text, repetition, and reserved blank rows predictable without clipping.
+- [ ] Support these mixed worksheets in SVG preview, vector PDF/print, browser autosave, named presets, and portable JSON imports/exports (with backward-compatible defaults).
+- [ ] Add automated coverage and hands-on QA with exercises that alternate shapes and written text on both US Letter and A4.
 
 ## Phase 4 — Interactive handwriting (research)
 **Milestone:** Investigate whether a stylus-enabled version benefits learners.

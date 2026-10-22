@@ -7,7 +7,8 @@
 
 - **Phase 1 and Phase 2:** Merged into `main`.
 - **QA stabilization:** Wrapped-phrase repetition, reserved independent-writing rows, independently scrolling desktop settings, and larger always-visible preview were implemented on `qa/bug-cleanup-1` and are included in the Phase 3 branch. They are not necessarily in `main` until merged.
-- **Phase 3:** Visual practice tools, worksheet activity library, and portable presets are implemented on `feature/visual-practice-tools`. **Automated checks passed (84 tests in 14 files, ESLint and build)** in the initial implementation run. Hands-on QA remains required before merging.
+- **Phase 3:** Visual practice tools, worksheet activity library, and portable presets are implemented on `feature/visual-practice-tools`. **Automated checks passed (84 tests in 14 files, ESLint and build)** on the latest verified implementation commit; hands-on QA remains required before merging.
+- **New Phase 3 follow-up (not implemented):** Multiple different shapes on one page, plus worksheets that intermix shapes with letters, numbers and other writing activities. These were added to the roadmap in the user's latest push and are explicitly **backlog**, not completed Phase 3 functionality.
 - **Phase 4:** Not started.
 
 ## Technology
@@ -25,7 +26,7 @@ React, TypeScript, Vite, Vitest and ESLint. SVG live preview and dependency-free
 
 ## Phase 3 implementation — `feature/visual-practice-tools`
 
-**Prewriting shapes:** Switch between text and shapes; choose horizontal/vertical lines, wave, zigzag, circle, square, triangle, or spiral. Shapes are original 10-unit vector paths. Trace, Copy, Fade and Blank operate on the shape activity, with repeat spacing and reserved blank rows.
+**Prewriting shapes:** Switch between text and shapes; choose horizontal/vertical lines, wave, zigzag, circle, square, triangle, or spiral. Shapes are original 10-unit vector paths. Trace, Copy, Fade and Blank operate on the shape activity, with repeat spacing and reserved blank rows. **Current limitation:** The activity selector chooses one shape type or one text activity per sheet; mixed-shape and shape-plus-text sequences are not available yet.
 
 **Selective highlighting:** Select source text in the Practice field, choose yellow/mint/peach highlight or remove it. Selected text is marked using source offsets; if a word wraps or the whole phrase repeats, corresponding letters retain the selection in every instance. Highlights are printable vector rectangles behind guidelines and letter strokes, not edits to the underlying words.
 
@@ -36,6 +37,17 @@ React, TypeScript, Vite, Vitest and ESLint. SVG live preview and dependency-free
 **Activity library:** Editable grouped starter templates for names, sentence-copying/fading, letter-progression work, themed writing, and prewriting shapes. Selecting a template clears unrelated previous word styling and resets activity-level prompt/case/blank-row options to sensible template defaults without changing preferred paper dimensions.
 
 **Shareable presets:** Export current or named worksheets as versioned JSON files, and import validated JSON into local settings/named presets. Includes highlights, mixed-mode selections, shapes and print options; imports are bounded, validated, and local to the browser.
+
+## Next feature request — mixed-content worksheet builder (planned, not built)
+
+The latest roadmap edit adds **two closely related goals**:
+
+1. **Multiple shapes:** Place several *different* prewriting forms in one worksheet (for example, horizontal line, circle, triangle, square) rather than selecting a single shape repeated through the page.
+2. **Mixed shapes and writing:** Combine selected prewriting shapes with **letters, numbers, words or sentences** and optional independent practice rows on one sheet.
+
+**Proposed implementation direction:** Represent the worksheet as an ordered list of editable practice blocks, each with content type (shape/text), sequence or text, row allocation and mode (Trace/Copy/Fade/Blank). Use a simple add/reorder/remove interface; retain the existing global defaults, word highlighting and styling where text is involved. Render from one shared layout model in the live SVG, printable PDF, saved configurations and portable preset files. Define overflow and repetition rules before introducing mixed blocks to avoid the earlier sentence-repetition bug.
+
+**Acceptance criteria:** A user can build a worksheet alternating e.g. **circle → triangle → letter A → number 3**, reserve blank rows, and obtain the same output in preview, PDF and print on US Letter/A4. Add migration and layout regression tests. This is a follow-up development milestone, **not yet ready for QA**.
 
 ## Hands-on QA checklist — before merge
 
@@ -52,6 +64,7 @@ Automated tests check geometry and serialization, **not clinical effectiveness**
 
 ## Remaining limitations
 
+- Only one shape choice or one text exercise can occupy the current worksheet; mixed-content sequence builder is planned.
 - Single-page worksheet/PDF; no automatic multipage print workflow.
 - No rich-text WYSIWYG inside the textarea: select text there, apply a toolbar action, and inspect the annotated preview; highlights do not recolor the native textarea itself.
 - Some unsupported Unicode characters become `?` in tracing, with a warning. Changing case for certain non-ASCII characters may not preserve one-to-one glyph positions.

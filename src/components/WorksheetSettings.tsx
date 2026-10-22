@@ -162,7 +162,8 @@ function WorksheetSettings({
                 className={"preset-chip" + (active ? " is-active" : "")}
                 aria-pressed={active}
                 onClick={() => update({
-                  activityType: "text",
+                  activityType: "text", promptStyle: "whole",
+                  letterCase: "as-typed",
                   title: preset.title, practiceText: preset.practiceText,
                   textMarks: [],
                 })}>

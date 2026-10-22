@@ -96,6 +96,13 @@ export function applyActivityTemplate(
 ): WorksheetConfig {
   return {
     ...config,
+    // Always start a library activity from a predictable practice setup,
+    // without resetting a user's custom paper size or handwriting dimensions.
+    activityType: "text",
+    promptStyle: "whole",
+    practiceMode: "trace",
+    letterCase: "as-typed",
+    blankPracticeRows: 0,
     ...template.config,
     textMarks: [],
     showTrace: template.config.practiceMode !== "blank",

@@ -7,7 +7,7 @@
 
 - **Phase 1 and Phase 2:** Merged into `main`.
 - **QA stabilization:** Wrapped-phrase repetition, reserved independent-writing rows, independently scrolling desktop settings, and larger always-visible preview were implemented on `qa/bug-cleanup-1` and are included in the Phase 3 branch. They are not necessarily in `main` until merged.
-- **Phase 3:** Visual practice tools, worksheet activity library, and portable presets are implemented on `feature/visual-practice-tools`. **Automated checks and hands-on QA are required before merging.**
+- **Phase 3:** Visual practice tools, worksheet activity library, and portable presets are implemented on `feature/visual-practice-tools`. **Automated checks passed (84 tests in 14 files, ESLint and build)** in the initial implementation run. Hands-on QA remains required before merging.
 - **Phase 4:** Not started.
 
 ## Technology
@@ -33,7 +33,7 @@ React, TypeScript, Vite, Vitest and ESLint. SVG live preview and dependency-free
 
 **Edits and storage:** Styling unaffected by edits is preserved/shifted; style ranges that intersect changed characters are discarded to avoid misapplying cues to the wrong text. Browser persistence validates/clamps ranges. Older saved worksheets default to text activity, no styling, and the circle shape preset.
 
-**Activity library:** Editable grouped starter templates for names, sentence-copying/fading, letter-progression work, themed writing, and prewriting shapes. Selecting a template clears unrelated previous word styling.
+**Activity library:** Editable grouped starter templates for names, sentence-copying/fading, letter-progression work, themed writing, and prewriting shapes. Selecting a template clears unrelated previous word styling and resets activity-level prompt/case/blank-row options to sensible template defaults without changing preferred paper dimensions.
 
 **Shareable presets:** Export current or named worksheets as versioned JSON files, and import validated JSON into local settings/named presets. Includes highlights, mixed-mode selections, shapes and print options; imports are bounded, validated, and local to the browser.
 

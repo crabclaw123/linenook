@@ -197,11 +197,22 @@ describe("Phase 3 — worksheet activity library and portable presets", () => {
     const prior = {
       ...baseline(),
       textMarks: applyTextStyle([], phrase.length, 4, 7, { highlight: "yellow" }),
+      practiceMode: "fade" as const,
+      promptStyle: "letter-by-letter" as const,
+      letterCase: "uppercase" as const,
+      blankPracticeRows: 4,
     };
     const result = applyActivityTemplate(prior, template);
     expect(result.textMarks).toEqual([]);
     expect(result.activityType).toBe("text");
     expect(result.promptStyle).toBe("letter-by-letter");
+    expect(result.blankPracticeRows).toBe(0);
+    expect(result.letterCase).toBe("as-typed");
+    const sentence = ACTIVITY_TEMPLATES.find((item) => item.id === "my-name")!;
+    const updated = applyActivityTemplate(result, sentence);
+    expect(updated.promptStyle).toBe("whole");
+    expect(updated.practiceMode).toBe("trace");
+    expect(updated.textMarks).toEqual([]);
   });
 
   it("exports and imports a full styled worksheet config without a backend", () => {

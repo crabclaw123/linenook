@@ -4,6 +4,27 @@ import { TRACE_STYLE, tracedColor } from "../lib/traceStyle";
 import { getGuidelineStrokes } from "../lib/guidelineStyle";
 import { getHeaderFields, getWorksheetTitleY } from "../lib/headerFields";
 import { HIGHLIGHT_COLORS } from "../lib/textMarks";
+import type { WordSpacingPrimitive } from "../lib/wordSpacing";
+
+function WordSpacingSvgCue({ cue }: { cue: WordSpacingPrimitive }) {
+  switch (cue.kind) {
+    case "band":
+      return <rect x={cue.x} y={cue.y} width={cue.width}
+        height={cue.height} fill={cue.color} />;
+    case "dot":
+      return <circle cx={cue.x} cy={cue.y} r={cue.radius} fill={cue.color} />;
+    case "box":
+      return <rect x={cue.x} y={cue.y} width={cue.width}
+        height={cue.height} fill="none" stroke={cue.color}
+        strokeWidth={cue.strokeWidth} rx={0.4} />;
+    case "reminder":
+      return <text x={cue.x} y={cue.y} fill={cue.color} fontSize={cue.fontSize}
+        fontWeight="700" fontFamily="Arial, Helvetica, sans-serif">
+        {cue.text}
+      </text>;
+  }
+}
+
 
 type Props = {
   worksheet: Worksheet;
@@ -89,6 +110,12 @@ function WorksheetPreview({ worksheet, idPrefix = "preview" }: Props) {
             />
           ))
         )}
+      </g>
+
+      {/* All word-spacing cues use shared millimeter geometry with PDF. */}
+      <g clipPath={"url(#" + clipId + ")"}>
+        {traceLayout.rows.flatMap((row) => row.spacingCues ?? [])
+          .map((cue, index) => <WordSpacingSvgCue cue={cue} key={index} />)}
       </g>
 
       {layout.rows.map((row, index) => (

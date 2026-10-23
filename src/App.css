@@ -560,3 +560,80 @@
 .library-categories button:focus-visible {
   outline: 3px solid #6aab91; outline-offset: 2px;
 }
+
+/* Word spacing supports — intentionally independent from handwriting grading. */
+.word-spacing-support {
+  margin: 8px 0 26px;
+  padding: 16px 13px;
+  border: 1px solid #d9e8dd;
+  border-radius: 12px;
+  background: #f6faf5;
+}
+.word-spacing-heading { margin-bottom: 16px; }
+.word-spacing-heading strong {
+  display: block;
+  color: #315f4b;
+  font-size: 13px;
+}
+.word-spacing-heading small {
+  display: block;
+  color: #7c9685;
+  font-size: 11px;
+  line-height: 1.55;
+  margin-top: 4px;
+}
+.word-spacing-levels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.word-spacing-levels > button {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  text-align: left;
+  padding: 11px 9px;
+  border-radius: 9px;
+  background: white;
+  border: 1px solid #dce7dd;
+  color: #4f7762;
+}
+.word-spacing-levels > button strong { font-size: 11px; }
+.word-spacing-levels > button small { font-size: 10px; color: #83a092; }
+.word-spacing-levels > button.is-active {
+  border-color: #6caa86;
+  background: #e9f5e9;
+  color: #286349;
+  box-shadow: inset 0 0 0 1px #a7d0af;
+}
+.word-spacing-levels > button:hover:not(:disabled) {
+  border-color: #6caa86;
+}
+.word-spacing-levels > button:focus-visible {
+  outline: 3px solid #65a98c;
+  outline-offset: 2px;
+}
+.word-spacing-levels > button:disabled { opacity: .48; cursor: not-allowed; }
+.word-spacing-progressive {
+  padding-top: 16px;
+  margin-top: 14px;
+  border-top: 1px solid #e0ece3;
+  align-items: flex-start;
+}
+.word-spacing-progressive .switch { margin-top: 3px; }
+.word-spacing-progressive input:disabled + .switch-track {
+  opacity: .45;
+}
+.word-spacing-stage-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 14px 0 0;
+  font-size: 10px;
+  font-weight: 650;
+  color: #55866a;
+  line-height: 1.7;
+}
+.word-spacing-stage-path span { color: #aac9b6; }

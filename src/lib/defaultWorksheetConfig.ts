@@ -22,6 +22,9 @@ export const defaultWorksheetConfig: WorksheetConfig = {
   writingHand: "right",
   characterSpacing: 0,
   blankPracticeRows: 0,
+  wordSpacingCue: "none",
+  wordSpacingLevel: 1,
+  wordSpacingProgression: false,
   showName: false,
   showDate: false,
 };

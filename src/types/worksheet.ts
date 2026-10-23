@@ -9,6 +9,8 @@ export type ActivityType = "text" | "shapes";
 export type ShapeId = "horizontal" | "vertical" | "wave" | "zigzag" | "circle" |
   "square" | "triangle" | "spiral";
 export type HighlightTone = "yellow" | "mint" | "peach";
+export type WordSpacingCueStyle = "none" | "dots" | "highlight" | "boxes" | "finger";
+export type WordSpacingSupportLevel = 1 | 2 | 3 | 4;
 /** Start and end are UTF-16 offsets into practiceText (as used by textarea.selectionStart). */
 export type TextMark = {
   start: number;
@@ -46,6 +48,12 @@ export type WorksheetConfig = {
   characterSpacing: number;
   /** Number of writing rows reserved at the bottom for independent practice. */
   blankPracticeRows: number;
+  /** Independently rendered spacing cues, even for Blank/Fade writing activities. */
+  wordSpacingCue: WordSpacingCueStyle;
+  /** 1 = strongest supports; 4 = completely independent. */
+  wordSpacingLevel: WordSpacingSupportLevel;
+  /** Reduce supports between complete repeated phrase blocks, never mid-phrase. */
+  wordSpacingProgression: boolean;
   showName: boolean;
   showDate: boolean;
 };

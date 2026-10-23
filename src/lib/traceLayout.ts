@@ -5,6 +5,11 @@ import {
 } from "./handwritingGlyphs";
 import { PREWRITING_SHAPES } from "./prewritingShapes";
 import { textStyleAt } from "./textMarks";
+import {
+  getRowWordSpacingCues,
+  type SpacingCharacter,
+  type WordSpacingPrimitive,
+} from "./wordSpacing";
 import type { LetterCase, LetterForm, PracticeMode, HighlightTone } from "../types/worksheet";
 
 export type TracePlacement = {
@@ -19,7 +24,12 @@ export type TracePlacement = {
   sourceIndex?: number;
 };
 
-export type TraceRow = { text: string; placements: TracePlacement[] };
+export type TraceRow = {
+  text: string;
+  placements: TracePlacement[];
+  /** All word-space cue paths, including reminders on independent blank rows. */
+  spacingCues?: WordSpacingPrimitive[];
+};
 export type WorksheetTraceLayout = {
   rows: TraceRow[];
   overflow: boolean;
@@ -175,9 +185,11 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
       !/\s/.test(char) && !isHandwritingCharacterSupported(char)
     )
   ));
-  if (!worksheet.showTrace ||
+  if (worksheet.wordSpacingCue === "none" && (
+      !worksheet.showTrace ||
       (worksheet.practiceMode === "blank" &&
-        !worksheet.textMarks.some((mark) => mark.mode !== undefined))) {
+        !worksheet.textMarks.some((mark) => mark.mode !== undefined))
+  )) {
     return { rows: emptyRows, overflow: false, unsupportedCharacters };
   }
 
@@ -219,9 +231,32 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
     return visible <= 1 ? 1 : 1 - 0.65 * rowIndex / (visible - 1);
   }
 
+  // Support fades between complete phrase repetitions, not between the
+  // separate writing lines of one wrapped sentence.
+  const totalCueGroups = letterByLetter
+    ? rows.length
+    : copy
+      ? 1 + Math.max(0, rows.length - Math.min(blockLength, rows.length))
+      : blockCopies + Math.max(0, rows.length - promptedRows);
+
+  function cueGroupIndex(rowIndex: number): number {
+    if (letterByLetter) return rowIndex;
+    if (copy) return rowIndex < blockLength ? 0 : 1 + rowIndex - blockLength;
+    return rowIndex < promptedRows
+      ? Math.floor(rowIndex / Math.max(1, blockLength))
+      : blockCopies + rowIndex - promptedRows;
+  }
+
   const traceRows = rows.map((row, rowIndex): TraceRow => {
     if (rowIndex >= promptedRows || blockLength === 0) {
-      return { text: "", placements: [] };
+      // Minimal reminders can continue onto independent writing rows.
+      return {
+        text: "",
+        placements: [],
+        spacingCues: blockLength === 0 ? [] : getRowWordSpacingCues(
+          worksheet, [], row, cueGroupIndex(rowIndex), totalCueGroups
+        ),
+      };
     }
     const item = items[letterByLetter || copy ? rowIndex : rowIndex % blockLength];
     if (!item) return { text: "", placements: [] };
@@ -250,22 +285,33 @@ export function getWorksheetTraceLayout(worksheet: Worksheet): WorksheetTraceLay
     const referenceRight = copy && worksheet.writingHand === "left";
     let x = referenceRight ? right - width : left;
     const fadeAtRow = fadeOpacity(rowIndex);
+    const spacingCharacters: SpacingCharacter[] = [];
     const placements: TracePlacement[] = chars.map(({ char, sourceIndex }, index) => {
       const mark = sourceIndex >= 0 ? textStyleAt(worksheet.textMarks, sourceIndex) : {};
       const mode: PracticeMode = mark.mode ?? worksheet.practiceMode;
       const opacity = mode === "blank" ? 0 : mode === "fade"
         ? (letterByLetter ? fadedLevel(index, chars.length) : fadeAtRow) : 1;
+      const glyph = getHandwritingGlyph(char, worksheet.letterForm);
+      const width = glyph.width * scale;
+      const advance = (glyph.width + spacingUnits) * scale;
+      spacingCharacters.push({ char, x, width, advance });
       const placement: TracePlacement = {
-        glyph: getHandwritingGlyph(char, worksheet.letterForm),
+        glyph,
         x, y: row.top, scale, opacity,
         solid: mode === "copy",
         highlight: mark.highlight,
         sourceIndex,
       };
-      x += (placement.glyph.width + spacingUnits) * scale;
+      x += advance;
       return placement;
-    }).filter((item) => item.opacity > 0);
-    return { text: drawn, placements };
+    }).filter((item) => worksheet.showTrace && item.opacity > 0);
+    return {
+      text: drawn,
+      placements,
+      spacingCues: getRowWordSpacingCues(
+        worksheet, spacingCharacters, row, cueGroupIndex(rowIndex), totalCueGroups
+      ),
+    };
   });
 
   return {

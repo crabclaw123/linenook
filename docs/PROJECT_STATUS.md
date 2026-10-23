@@ -1,13 +1,13 @@
 # LineNook — Project Status
 
-**Updated:** October 21, 2026  
+**Updated:** October 22, 2026  
 **Product:** Browser-based printable handwriting and prewriting worksheet studio for occupational therapists, educators, and families.
 
 ## Current development
 
 - **Phase 1 and Phase 2:** Merged into `main`.
 - **QA stabilization:** Wrapped-phrase repetition, reserved independent-writing rows, independently scrolling desktop settings, and larger always-visible preview were implemented on `qa/bug-cleanup-1` and are included in the Phase 3 branch. They are not necessarily in `main` until merged.
-- **Phase 3:** Visual practice tools, worksheet activity library, and portable presets are implemented on `feature/visual-practice-tools`. **Automated checks passed (84 tests in 14 files, ESLint and build)** on the latest verified implementation commit; hands-on QA remains required before merging.
+- **Phase 3:** Visual practice tools, worksheet activity library, portable presets and **word-spacing intervention supports** are implemented on `feature/visual-practice-tools`. The previous 84-test suite passed; new word-spacing tests require verification on the latest commit. Hands-on QA remains required before merging.
 - **New Phase 3 follow-up (not implemented):** Multiple different shapes on one page, plus worksheets that intermix shapes with letters, numbers and other writing activities. These were added to the roadmap in the user's latest push and are explicitly **backlog**, not completed Phase 3 functionality.
 - **Phase 4:** Not started.
 
@@ -38,6 +38,24 @@ React, TypeScript, Vite, Vitest and ESLint. SVG live preview and dependency-free
 
 **Shareable presets:** Export current or named worksheets as versioned JSON files, and import validated JSON into local settings/named presets. Includes highlights, mixed-mode selections, shapes and print options; imports are bounded, validated, and local to the browser.
 
+## Phase 3 addition — word-spacing supports (implemented, hands-on QA pending)
+
+**OT-first practice support:** In Practice Support, choose None, Colored dots, Highlighted spaces, Word boxes or Finger-spacing reminder. The cue selection has no effect on word-width measurements and is separate from character spacing.
+
+**Adjustable cue intensity:**
+- **Level 1:** Strong version of the selected visual cue (highlighted gap, prominent dot, word outline, or pronounced finger reminder).
+- **Level 2:** Small colored gap dots, except a smaller reminder for Finger-spacing reminder style.
+- **Level 3:** Small printable **FINGER SPACE** reminder positioned above the writing row.
+- **Level 4:** No cues for independent practice.
+
+**Automatic progression:** Optional switch grades intensity from the selected level toward Level 4 *between complete phrase repetitions*. Both lines of a wrapped sentence retain the same intensity. Blank practice rows can carry a minimal reminder before supports disappear. Few repetitions may skip an intermediate level.
+
+**Rendering and interactions:** Cues use the same millimeter-based row and glyph geometry for SVG preview and vector PDF; word boxes use outlines, highlighted spaces are filled rectangles, dots are vector circles, and reminders are printable text. Spacing guidance works independently with worksheet-wide Trace, Copy, Fade and Blank and with word-specific formatting. Spacing cues do not apply to letter-by-letter or prewriting-shape activities.
+
+**Persistence:** Current config, named saved setups, and versioned portable JSON presets retain cue type, current intensity and progression choice. Older saved files default to None / Level 1 / progression off.
+
+**QA priorities:** Check visually that highlighted spaces do not obscure the writing line, boxes remain separated, dots appear between words rather than at wraps, reminders are readable without overlapping handwriting, and the PDF/printed page agrees with the preview on Letter and A4. Validate progression with 1-, 2- and 3-line sentences, reserved blank rows, and Trace/Fade/Blank.
+
 ## Next feature request — mixed-content worksheet builder (planned, not built)
 
 The latest roadmap edit adds **two closely related goals**:
@@ -57,8 +75,9 @@ The latest roadmap edit adds **two closely related goals**:
 4. Choose **Shapes**. Examine circle, zigzag, triangle, and spiral in Trace, Copy, Fade, and Blank; compare Letter/A4 and different line sizes. Try reserved blank rows.
 5. Load each activity library category. Check that templates switch between text/shapes correctly and leave title, Name/Date, and baseline styling editable.
 6. Export a styled/shape worksheet JSON file, then import it. Verify settings, marked ranges and shape types restore correctly. Test invalid/non-LineNook JSON and blocked browser storage.
-7. Compare live preview to downloaded vector PDFs and physical prints at **Actual size/100%**, including visible highlight color, selected stroke patterns and reserved blank rows.
-8. Test browser/OS text selection interactions, keyboard navigation, smaller screens and narrow windows; verify settings and preview remain accessible.
+7. Test all five **Word spacing cues** with intensity Levels 1–4, plus automatic progression; check wrapped-sentence block boundaries, selected-word Trace/Copy/Fade/Blank, and blank practice rows.
+8. Compare live preview to downloaded vector PDFs and physical prints at **Actual size/100%**, including visible highlight color, dots, outlined words, finger reminders, selected stroke patterns and reserved blank rows.
+9. Test browser/OS text selection interactions, keyboard navigation, smaller screens and narrow windows; verify settings and preview remain accessible.
 
 Automated tests check geometry and serialization, **not clinical effectiveness** or printed-device accuracy.
 

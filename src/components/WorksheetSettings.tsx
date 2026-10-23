@@ -3,6 +3,10 @@ import type { WorksheetConfig, PracticeMode, HighlightTone } from "../types/work
 import { ACTIVITY_TEMPLATES, ACTIVITY_CATEGORIES, applyActivityTemplate,
   type ActivityCategory } from "../lib/activityTemplates";
 import { PREWRITING_SHAPES } from "../lib/prewritingShapes";
+import {
+  WORD_SPACING_LEVEL_LABELS,
+  WORD_SPACING_STYLE_LABELS,
+} from "../lib/wordSpacing";
 import { applyTextStyle, rebaseTextMarks } from "../lib/textMarks";
 import type { SavedWorksheetPreset } from "../lib/worksheetStorage";
 import { WORKSHEET_PRESETS } from "../lib/worksheetPresets";
@@ -368,6 +372,87 @@ function WorksheetSettings({
             : "Entire phrases repeat, even when they wrap across multiple rows."}
           onChange={(promptStyle) => update({ promptStyle })}
         />
+
+        {config.activityType === "text" && (
+          <div className="word-spacing-support">
+            <div className="word-spacing-heading">
+              <strong>Word spacing supports</strong>
+              <small>Separate from tracing, copying and fading.</small>
+            </div>
+            <ChoiceField
+              id="word-spacing-cue"
+              label="Word spacing cues"
+              value={config.wordSpacingCue}
+              options={[
+                { value: "none", label: WORD_SPACING_STYLE_LABELS.none },
+                { value: "dots", label: WORD_SPACING_STYLE_LABELS.dots },
+                { value: "highlight", label: WORD_SPACING_STYLE_LABELS.highlight },
+                { value: "boxes", label: WORD_SPACING_STYLE_LABELS.boxes },
+                { value: "finger", label: WORD_SPACING_STYLE_LABELS.finger },
+              ]}
+              onChange={(wordSpacingCue) => update({ wordSpacingCue })}
+              help="Dots and colored spaces appear between words; boxes outline each word. The finger reminder sits above the writing line."
+            />
+            <span className="style-toolbar-label">Cue intensity</span>
+            <div className="word-spacing-levels" role="group"
+              aria-label="Word-spacing support intensity">
+              {([1, 2, 3, 4] as const).map((level) => (
+                <button key={level} type="button"
+                  disabled={config.wordSpacingCue === "none"}
+                  className={config.wordSpacingLevel === level ? "is-active" : ""}
+                  aria-pressed={config.wordSpacingLevel === level}
+                  title={WORD_SPACING_LEVEL_LABELS[level]}
+                  onClick={() => update({ wordSpacingLevel: level })}>
+                  <strong>Level {level}</strong>
+                  <small>{level === 1 ? "Maximum" : level === 2 ? "Moderate" :
+                    level === 3 ? "Minimal" : "Independent"}</small>
+                </button>
+              ))}
+            </div>
+            <p className="field-help" aria-live="polite">
+              {config.wordSpacingCue === "none"
+                ? "Select a cue style to enable word-spacing support."
+                : config.wordSpacingLevel === 1
+                  ? "Strongest support: highlighted spaces, word boxes, bold dots, or a prominent finger reminder (according to your selected cue)."
+                  : config.wordSpacingLevel === 2
+                    ? config.wordSpacingCue === "finger"
+                      ? "Moderate support: a smaller finger-spacing reminder."
+                      : "Moderate support: small colored dots mark the space between words."
+                    : config.wordSpacingLevel === 3
+                      ? "Minimal support: a brief finger-spacing reminder above each writing line."
+                      : "Independent practice: word-spacing cues are removed."}
+            </p>
+            <label className="toggle-row word-spacing-progressive"
+              htmlFor="word-spacing-progression">
+              <span>
+                <strong>Gradually reduce cues down the page</strong>
+                <small>Advance toward Level 4 between complete repeated
+                  phrases; never halfway through a wrapped sentence.</small>
+              </span>
+              <span className="switch">
+                <input id="word-spacing-progression" type="checkbox"
+                  disabled={config.wordSpacingCue === "none" ||
+                    config.wordSpacingLevel === 4}
+                  checked={config.wordSpacingProgression}
+                  onChange={(event) => update({
+                    wordSpacingProgression: event.currentTarget.checked,
+                  })} />
+                <span className="switch-track" aria-hidden="true" />
+              </span>
+            </label>
+            {config.promptStyle === "letter-by-letter" && (
+              <p className="field-help" role="status">
+                Word-spacing cues appear in Whole word or phrase mode, not
+                one-letter-per-row exercises.
+              </p>
+            )}
+            <p className="word-spacing-stage-path">
+              Strong cue <span aria-hidden="true">→</span> Colored dots
+              <span aria-hidden="true">→</span> Finger reminder
+              <span aria-hidden="true">→</span> Independent
+            </p>
+          </div>
+        )}
 
         <div className="blank-practice-control">
           <div className="field-topline">

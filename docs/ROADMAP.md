@@ -66,6 +66,16 @@ This is a prioritized direction, **not a promise or release schedule**. Status d
 - [x] Preserve source text styles across wrapping, repeated multi-row phrases, and export; remove affected style ranges on edits rather than styling the wrong word.
 - [x] Save new options to local presets and portable JSON files; normalize older saved configurations safely.
 - [x] Automated tests for source-offset styles, vector shapes, layout behavior, PDF highlights, storage and import/export.
+
+**Word-spacing intervention supports (branch `feature/visual-practice-tools`)**
+- [x] Independent word-spacing cue selector: None, Colored dots, Highlighted spaces, Word boxes, Finger-spacing reminder.
+- [x] Four graded intensity levels: 1 strong guidance, 2 colored dots, 3 finger-space reminder, 4 no cues.
+- [x] Optional progression from the selected level toward independent spacing across **complete phrase blocks**, preserving the same level across wrapped sentence lines.
+- [x] Combine spacing cues with existing worksheet-wide Trace/Copy/Fade/Blank and individually styled words; visual guidance remains distinct from character spacing.
+- [x] Share spacing cue geometry between the SVG preview and vector PDF; persist settings in browser and exported/imported presets with migration defaults.
+- [x] Unit tests for styles, intensity stages, progression, layout, PDF, storage and disabled modes.
+- [ ] **Hands-on QA:** verify print contrast, cue placement, progression across wrapped sentences, actual-size Letter/A4 output, and concurrent Trace/Fade/Blank on real worksheets.
+
 - [ ] **Hands-on QA:** preview/PDF visual matching, print legibility, keyboard/text selection UX, selection edits, copied sentence blocks, smaller screens, and A4/Letter page sizing.
 
 **Design note:** Worksheet-wide Copy mode still presents one model block followed by blank rows. To repeat a sentence with *some words copied and others traced*, use worksheet-wide Trace and assign Copy to the chosen words. These are original educational tools; no clinical validation is claimed.

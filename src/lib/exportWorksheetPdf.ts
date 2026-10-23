@@ -4,6 +4,7 @@ import { TRACE_STYLE, tracedColor } from "./traceStyle";
 import { getGuidelineStrokes } from "./guidelineStyle";
 import { getHeaderFields, getWorksheetTitleY } from "./headerFields";
 import { HIGHLIGHT_COLORS } from "./textMarks";
+import type { WordSpacingPrimitive } from "./wordSpacing";
 
 /**
  * Small dependency-free vector PDF writer for a single worksheet.
@@ -53,6 +54,56 @@ function strokeLine(
     coord(worksheet, x1, y1) + " m",
     coord(worksheet, x2, y2) + " l S",
     "Q",
+  ];
+}
+
+function wordSpacingCueToPdf(
+  worksheet: Worksheet, cue: WordSpacingPrimitive
+): string[] {
+  if (cue.kind === "band") {
+    return [
+      "q", rgb(cue.color) + " rg",
+      coord(worksheet, cue.x, cue.y + cue.height) + " " +
+        num(pt(cue.width)) + " " + num(pt(cue.height)) + " re f",
+      "Q",
+    ];
+  }
+  if (cue.kind === "box") {
+    return [
+      "q", rgb(cue.color) + " RG", num(pt(cue.strokeWidth)) + " w",
+      "[] 0 d",
+      coord(worksheet, cue.x, cue.y + cue.height) + " " +
+        num(pt(cue.width)) + " " + num(pt(cue.height)) + " re S",
+      "Q",
+    ];
+  }
+  if (cue.kind === "reminder") {
+    return [
+      "q", "BT",
+      "/F2 " + num(pt(cue.fontSize)) + " Tf",
+      rgb(cue.color) + " rg",
+      coord(worksheet, cue.x, cue.y) + " Td",
+      "(" + pdfLiteral(cue.text) + ") Tj",
+      "ET", "Q",
+    ];
+  }
+
+  // Cubic Bézier approximation of a vector circle (same center/radius as SVG).
+  const k = 0.5522847498 * cue.radius;
+  const { x, y, radius: r } = cue;
+  const point = (px: number, py: number) => coord(worksheet, px, py);
+  return [
+    "q", rgb(cue.color) + " rg",
+    point(x + r, y) + " m",
+    point(x + r, y + k) + " " +
+      point(x + k, y + r) + " " + point(x, y + r) + " c",
+    point(x - k, y + r) + " " +
+      point(x - r, y + k) + " " + point(x - r, y) + " c",
+    point(x - r, y - k) + " " +
+      point(x - k, y - r) + " " + point(x, y - r) + " c",
+    point(x + k, y - r) + " " +
+      point(x + r, y - k) + " " + point(x + r, y) + " c",
+    "f", "Q",
   ];
 }
 
@@ -137,6 +188,13 @@ function contentStream(worksheet: Worksheet): string {
           " " + num(pt(heightMm)) + " re f",
         "Q"
       );
+    }
+  }
+
+  // Draw word-spacing guidance beneath the guidelines and glyphs.
+  for (const row of tracing.rows) {
+    for (const cue of row.spacingCues ?? []) {
+      commands.push(...wordSpacingCueToPdf(worksheet, cue));
     }
   }
 

@@ -82,6 +82,13 @@ export function normalizeWorksheetConfig(data: unknown): WorksheetConfig {
     writingHand: select(saved.writingHand, ["right", "left"], defaults.writingHand),
     characterSpacing: finiteInRange(saved.characterSpacing, defaults.characterSpacing, 0, 8),
     blankPracticeRows: Math.floor(finiteInRange(saved.blankPracticeRows, defaults.blankPracticeRows, 0, 30)),
+    wordSpacingCue: select(saved.wordSpacingCue,
+      ["none", "dots", "highlight", "boxes", "finger"], defaults.wordSpacingCue),
+    wordSpacingLevel: Math.floor(finiteInRange(
+      saved.wordSpacingLevel, defaults.wordSpacingLevel, 1, 4
+    )) as WorksheetConfig["wordSpacingLevel"],
+    wordSpacingProgression: typeof saved.wordSpacingProgression === "boolean"
+      ? saved.wordSpacingProgression : defaults.wordSpacingProgression,
     showName: typeof saved.showName === "boolean" ? saved.showName : defaults.showName,
     showDate: typeof saved.showDate === "boolean" ? saved.showDate : defaults.showDate,
   };

@@ -7,7 +7,7 @@
 
 - **Phase 1 and Phase 2:** Merged into `main`.
 - **QA stabilization:** Wrapped-phrase repetition, reserved independent-writing rows, independently scrolling desktop settings, and larger always-visible preview were implemented on `qa/bug-cleanup-1` and are included in the Phase 3 branch. They are not necessarily in `main` until merged.
-- **Phase 3:** Visual practice tools, worksheet activity library, portable presets and **word-spacing intervention supports** are implemented on `feature/visual-practice-tools`. The previous 84-test suite passed; new word-spacing tests require verification on the latest commit. Hands-on QA remains required before merging.
+- **Phase 3:** Visual practice tools, worksheet activity library, portable presets and **word-spacing intervention supports** are implemented on `feature/visual-practice-tools`. **Latest verified checks:** [94 tests in 15 files, ESLint and production build all passing](https://github.com/crabclaw123/linenook/actions/runs/39892861988). Hands-on QA remains required before merging.
 - **New Phase 3 follow-up (not implemented):** Multiple different shapes on one page, plus worksheets that intermix shapes with letters, numbers and other writing activities. These were added to the roadmap in the user's latest push and are explicitly **backlog**, not completed Phase 3 functionality.
 - **Phase 4:** Not started.
 

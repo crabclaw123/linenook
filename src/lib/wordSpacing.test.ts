@@ -155,10 +155,20 @@ describe("Word spacing: independent cue styles and support levels", () => {
     expect(supported.rows.map((row) => row.placements))
       .toEqual(plain.rows.map((row) => row.placements));
 
-    const faded = make({ practiceMode: "fade",
-      wordSpacingCue: "dots" }).layout;
+    const { worksheet: fadedWorksheet, layout: faded } = make({
+      practiceMode: "fade", wordSpacingCue: "dots",
+    });
+    const scale = (fadedWorksheet.layout.rows[0].baseline -
+      fadedWorksheet.layout.rows[0].top) / 10;
+    const firstBlockLength = wrapIndexedTraceText(
+      fadedWorksheet.practiceText, fadedWorksheet.letterCase,
+      (fadedWorksheet.area.width - 4) / scale,
+      fadedWorksheet.letterForm, 1.25 + fadedWorksheet.characterSpacing / scale
+    ).length;
+    expect(firstBlockLength).toBeGreaterThan(1);
     expect(faded.rows[0].placements[0].opacity).toBe(1);
-    expect(faded.rows[1].placements[0].opacity).toBeLessThan(1);
+    expect(faded.rows[1].placements[0].opacity).toBe(1);
+    expect(faded.rows[firstBlockLength].placements[0].opacity).toBeLessThan(1);
     expect(faded.rows[0].spacingCues?.[0].kind).toBe("dot");
 
     const blank = make({ practiceMode: "blank", showTrace: false,
